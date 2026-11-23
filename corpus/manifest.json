@@ -1,0 +1,1373 @@
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "id": "auth",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "license": "MIT",
+      "licenseFile": {
+        "path": "THIRD_PARTY/auth/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/LICENSE",
+        "sha256": "68c80ef00664ea62a2c6f38c0ef044497caacc6648a8bd92eec7fdb81e01f904"
+      },
+      "postgresVersionContext": {
+        "label": "15 (development image)",
+        "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/Dockerfile.postgres.dev"
+      }
+    },
+    {
+      "id": "graphql-engine",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "license": "Apache-2.0",
+      "licenseFile": {
+        "path": "THIRD_PARTY/graphql-engine/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      "postgresVersionContext": null
+    },
+    {
+      "id": "openfga",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "license": "Apache-2.0",
+      "licenseFile": {
+        "path": "THIRD_PARTY/openfga/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/LICENSE",
+        "sha256": "1c46d7b2bed94d457d745f28cabeb31f8d6c81dd9035bc5d24039989ee1e1bff"
+      },
+      "postgresVersionContext": {
+        "label": "14+ (pinned project support)",
+        "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/README.md"
+      }
+    },
+    {
+      "id": "pg_partman",
+      "sourceRepo": "https://github.com/pgpartman/pg_partman",
+      "commit": "e0a6c384a6c77846d2560f9251089339c9637814",
+      "license": "PostgreSQL",
+      "licenseFile": {
+        "path": "THIRD_PARTY/pg_partman/LICENSE.txt",
+        "upstreamPath": "LICENSE.txt",
+        "permalink": "https://github.com/pgpartman/pg_partman/blob/e0a6c384a6c77846d2560f9251089339c9637814/LICENSE.txt",
+        "rawUrl": "https://raw.githubusercontent.com/pgpartman/pg_partman/e0a6c384a6c77846d2560f9251089339c9637814/LICENSE.txt",
+        "sha256": "657cd7bde17fc758e47824280a7ccb9bc7d44067e3f3790c2ef4b07e8a04223a"
+      },
+      "postgresVersionContext": {
+        "label": "14+ (pinned project prerequisite)",
+        "permalink": "https://github.com/pgpartman/pg_partman/blob/e0a6c384a6c77846d2560f9251089339c9637814/README.md"
+      }
+    },
+    {
+      "id": "pgmq",
+      "sourceRepo": "https://github.com/pgmq/pgmq",
+      "commit": "51468f6ba2afeb4a4a9a67e9a532f37b590a0929",
+      "license": "PostgreSQL",
+      "licenseFile": {
+        "path": "THIRD_PARTY/pgmq/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/pgmq/pgmq/blob/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/pgmq/pgmq/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/LICENSE",
+        "sha256": "a3ce61e0031bdcad1024b1bf50ded2359602160f00e0cac8e509752273df6179"
+      },
+      "postgresVersionContext": {
+        "label": "15–18 (pinned project support)",
+        "permalink": "https://github.com/pgmq/pgmq/blob/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/pgmq-extension/README.md"
+      }
+    },
+    {
+      "id": "river",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "license": "MPL-2.0",
+      "licenseFile": {
+        "path": "THIRD_PARTY/river/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/LICENSE",
+        "sha256": "393eaf2b92b3d49bea139e39b6fd205b6e99c499999986aec5554586a830dfdd"
+      },
+      "postgresVersionContext": {
+        "label": "14–18 (pinned CI matrix)",
+        "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/.github/workflows/ci.yaml"
+      }
+    },
+    {
+      "id": "storage",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "license": "Apache-2.0",
+      "licenseFile": {
+        "path": "THIRD_PARTY/storage/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/LICENSE",
+        "sha256": "87420ad3debbb44af3e5aac29f5bafd4427eef7a28c6e5eae199bdde1ad7c2e2"
+      },
+      "postgresVersionContext": {
+        "label": "15 (development default)",
+        "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/.docker/docker-compose-infra.yml"
+      }
+    },
+    {
+      "id": "temporal",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "license": "MIT",
+      "licenseFile": {
+        "path": "THIRD_PARTY/temporal/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/LICENSE",
+        "sha256": "6aab9afd99ceb1dcaf6a0d91386b46baef9bce17ae4006044e0f231e31430b69"
+      },
+      "postgresVersionContext": {
+        "label": "12 (upstream v12 schema track)",
+        "permalink": "https://github.com/temporalio/temporal/tree/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12"
+      }
+    },
+    {
+      "id": "trigger.dev",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "license": "Apache-2.0",
+      "licenseFile": {
+        "path": "THIRD_PARTY/trigger.dev/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/LICENSE",
+        "sha256": "9e9e22db5ae77f7ce1119294d0386cbbab2791cc77fb68d97c90627d7d96c5e1"
+      },
+      "postgresVersionContext": {
+        "label": "17 (upstream Dockerfile)",
+        "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/docker/Dockerfile.postgres17"
+      }
+    },
+    {
+      "id": "umami",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "license": "MIT",
+      "licenseFile": {
+        "path": "THIRD_PARTY/umami/LICENSE",
+        "upstreamPath": "LICENSE",
+        "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/LICENSE",
+        "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/LICENSE",
+        "sha256": "d59f69c3a56253a150adfc42b41acd49e9024410ad087c58a23d506623258dfe"
+      },
+      "postgresVersionContext": {
+        "label": "15 (upstream Compose image)",
+        "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/docker-compose.yml"
+      }
+    }
+  ],
+  "files": [
+    {
+      "id": "auth/20210909172000_create_identities_table.up",
+      "path": "files/auth/20210909172000_create_identities_table.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20210909172000_create_identities_table.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20210909172000_create_identities_table.up.sql",
+      "upstreamPath": "migrations/20210909172000_create_identities_table.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "4c2d6a94d34d34f98f1fa83537a0068f4813e49a19cfc2fd4e9199e5a941cc84",
+      "categories": [
+        "constraints",
+        "foreign-keys",
+        "complex"
+      ],
+      "notes": "Creates identities with a cascading user reference and a Go namespace template."
+    },
+    {
+      "id": "auth/20221125140132_backfill_email_identity.up",
+      "path": "files/auth/20221125140132_backfill_email_identity.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20221125140132_backfill_email_identity.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20221125140132_backfill_email_identity.up.sql",
+      "upstreamPath": "migrations/20221125140132_backfill_email_identity.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "60cfea2750a2c79c0d69bb3a08edee0efb830c12212cac0ffdb5d44937c2839d",
+      "categories": [
+        "backfills",
+        "data-movement",
+        "complex"
+      ],
+      "notes": "Copies existing user email identities with INSERT SELECT inside a templated DO block; no row data is embedded."
+    },
+    {
+      "id": "auth/20230116124310_alter_phone_type.up",
+      "path": "files/auth/20230116124310_alter_phone_type.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20230116124310_alter_phone_type.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20230116124310_alter_phone_type.up.sql",
+      "upstreamPath": "migrations/20230116124310_alter_phone_type.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "4f01441b120a5c06a1bd844fcdb77094ee428987418f4c3b68bcbd36b3e6d345",
+      "categories": [
+        "alter-table",
+        "type-conversions",
+        "complex"
+      ],
+      "notes": "Changes two phone columns to text inside a DO block with SQLSTATE-specific handlers and a Go namespace template."
+    },
+    {
+      "id": "auth/20240214120130_add_is_anonymous_column.up",
+      "path": "files/auth/20240214120130_add_is_anonymous_column.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20240214120130_add_is_anonymous_column.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20240214120130_add_is_anonymous_column.up.sql",
+      "upstreamPath": "migrations/20240214120130_add_is_anonymous_column.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "e36f403a8aad16ccbcc44e1d4198cf21451a906b45ceaedb74bfcd28e79caf21",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "complex"
+      ],
+      "notes": "Adds a non-null anonymous-user flag with a false default inside a templated DO block."
+    },
+    {
+      "id": "auth/20240729123726_add_mfa_phone_config.up",
+      "path": "files/auth/20240729123726_add_mfa_phone_config.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20240729123726_add_mfa_phone_config.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20240729123726_add_mfa_phone_config.up.sql",
+      "upstreamPath": "migrations/20240729123726_add_mfa_phone_config.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "b273758317267b6b4d126489ba93550c8d0e0584e52c08b3cc101de6fe1b857c",
+      "categories": [
+        "alter-table",
+        "defaults",
+        "constraints",
+        "enum-changes",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Adds a phone factor enum value, then adds columns and a unique index; includes Go namespace templates."
+    },
+    {
+      "id": "auth/20250904133000_add_oauth_client_id_to_session.up",
+      "path": "files/auth/20250904133000_add_oauth_client_id_to_session.up.sql",
+      "sourceRepo": "https://github.com/supabase/auth",
+      "commit": "10ef10789d1ee4fb422b448047e67e3e264c0482",
+      "permalink": "https://github.com/supabase/auth/blob/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20250904133000_add_oauth_client_id_to_session.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/auth/10ef10789d1ee4fb422b448047e67e3e264c0482/migrations/20250904133000_add_oauth_client_id_to_session.up.sql",
+      "upstreamPath": "migrations/20250904133000_add_oauth_client_id_to_session.up.sql",
+      "license": "MIT",
+      "tool": "Go Auth migration runner",
+      "postgresVersionContext": "15 (development image)",
+      "sha256": "3c4b49f787b54d4e09b48b4500226b59edc73e3f60826538e9e3552db9542faf",
+      "categories": [
+        "alter-table",
+        "foreign-keys",
+        "constraints",
+        "not-valid",
+        "validate-constraint",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Adds and validates a NOT VALID foreign key, then indexes the new session column; includes Go namespace templates."
+    },
+    {
+      "id": "graphql-engine/0_to_1",
+      "path": "files/graphql-engine/0_to_1.sql",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/0_to_1.sql",
+      "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/0_to_1.sql",
+      "upstreamPath": "server/src-rsr/pg_source_migrations/0_to_1.sql",
+      "license": "Apache-2.0",
+      "tool": "Hasura source-catalog migrator",
+      "postgresVersionContext": null,
+      "sha256": "2b16a3fd318bb80e83d3031f4259c8aabce912bb141cd20995e2700c6c38a27d",
+      "categories": [
+        "alter-table",
+        "type-conversions",
+        "renames",
+        "drops",
+        "backfills",
+        "data-movement",
+        "complex"
+      ],
+      "notes": "Renames the boolean lock column, derives timestamp lock values, and drops the old column."
+    },
+    {
+      "id": "graphql-engine/1_to_2",
+      "path": "files/graphql-engine/1_to_2.sql",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/1_to_2.sql",
+      "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/1_to_2.sql",
+      "upstreamPath": "server/src-rsr/pg_source_migrations/1_to_2.sql",
+      "license": "Apache-2.0",
+      "tool": "Hasura source-catalog migrator",
+      "postgresVersionContext": null,
+      "sha256": "dc06c98608a2b3979b365874f95dcd4e2850cba05c2e9e65b0a3709013d25bd2",
+      "categories": [
+        "drops",
+        "index-creation"
+      ],
+      "notes": "Replaces two event-log indexes with a partial index for fetching pending events."
+    },
+    {
+      "id": "graphql-engine/2_to_3",
+      "path": "files/graphql-engine/2_to_3.sql",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/2_to_3.sql",
+      "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/2_to_3.sql",
+      "upstreamPath": "server/src-rsr/pg_source_migrations/2_to_3.sql",
+      "license": "Apache-2.0",
+      "tool": "Hasura source-catalog migrator",
+      "postgresVersionContext": null,
+      "sha256": "381d085348c50ee27de8e2b3282e02683025dde57701573cea7336e15eff55ad",
+      "categories": [
+        "alter-table",
+        "defaults",
+        "drops",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Adds a cleanup table with check and unique constraints and drops a foreign key from invocation logs."
+    },
+    {
+      "id": "graphql-engine/3_to_4",
+      "path": "files/graphql-engine/3_to_4.sql",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/3_to_4.sql",
+      "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/3_to_4.sql",
+      "upstreamPath": "server/src-rsr/pg_source_migrations/3_to_4.sql",
+      "license": "Apache-2.0",
+      "tool": "Hasura source-catalog migrator",
+      "postgresVersionContext": null,
+      "sha256": "b1263e83d9c926a1190042885d084054e71f4fba459c6dd713138f4cc214adea",
+      "categories": [
+        "complex"
+      ],
+      "notes": "Replaces a PL/pgSQL event writer with branching for server versions before and after 9.6."
+    },
+    {
+      "id": "graphql-engine/4_to_5",
+      "path": "files/graphql-engine/4_to_5.sql",
+      "sourceRepo": "https://github.com/hasura/graphql-engine",
+      "commit": "96f68d0a35a2b3ee153ce67585d37efb3cfa6598",
+      "permalink": "https://github.com/hasura/graphql-engine/blob/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/4_to_5.sql",
+      "rawUrl": "https://raw.githubusercontent.com/hasura/graphql-engine/96f68d0a35a2b3ee153ce67585d37efb3cfa6598/server/src-rsr/pg_source_migrations/4_to_5.sql",
+      "upstreamPath": "server/src-rsr/pg_source_migrations/4_to_5.sql",
+      "license": "Apache-2.0",
+      "tool": "Hasura source-catalog migrator",
+      "postgresVersionContext": null,
+      "sha256": "801c603443d64b561e1021b34dd4da1680cc2b05b550b4f7b04b7a0b201a9b17",
+      "categories": [
+        "alter-table",
+        "complex"
+      ],
+      "notes": "Sets REPLICA IDENTITY FULL; the upstream comment cites 15.15 as an example, not a minimum."
+    },
+    {
+      "id": "openfga/001_initialize_schema",
+      "path": "files/openfga/001_initialize_schema.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/001_initialize_schema.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/001_initialize_schema.sql",
+      "upstreamPath": "assets/migrations/postgres/001_initialize_schema.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "ad4f4947415e37b47a28eb9191fa46d5f87ee42cc7ad72bf01cdfc817afbe4a9",
+      "categories": [
+        "constraints",
+        "index-creation",
+        "drops"
+      ],
+      "notes": "Initializes authorization tables and partial indexes; Goose Down drops the tables."
+    },
+    {
+      "id": "openfga/002_add_authorization_model_version",
+      "path": "files/openfga/002_add_authorization_model_version.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/002_add_authorization_model_version.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/002_add_authorization_model_version.sql",
+      "upstreamPath": "assets/migrations/postgres/002_add_authorization_model_version.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "56b15faccdf5651107e1ddf5663219e6a1a0354e11eb0f2c2c9c0fa248ec6074",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "drops"
+      ],
+      "notes": "Adds a required model schema version with a constant default; Goose Down drops the column."
+    },
+    {
+      "id": "openfga/003_add_reverse_lookup_index",
+      "path": "files/openfga/003_add_reverse_lookup_index.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/003_add_reverse_lookup_index.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/003_add_reverse_lookup_index.sql",
+      "upstreamPath": "assets/migrations/postgres/003_add_reverse_lookup_index.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "f7e0aa3b231cd15a5620dc94e56a130f392b37f7fe7a9069c019cb0202ee5cf3",
+      "categories": [
+        "index-creation",
+        "drops"
+      ],
+      "notes": "Creates and reverses an index for reverse tuple lookups."
+    },
+    {
+      "id": "openfga/004_add_authorization_model_serialized_protobuf",
+      "path": "files/openfga/004_add_authorization_model_serialized_protobuf.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/004_add_authorization_model_serialized_protobuf.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/004_add_authorization_model_serialized_protobuf.sql",
+      "upstreamPath": "assets/migrations/postgres/004_add_authorization_model_serialized_protobuf.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "99b326fcd0cb3d5b0e779b6031c77a0cacac10a1f1056b7cfec980997847a6a4",
+      "categories": [
+        "alter-table",
+        "drops"
+      ],
+      "notes": "Adds a nullable BYTEA column; Goose Down drops it."
+    },
+    {
+      "id": "openfga/005_add_conditions_to_tuples",
+      "path": "files/openfga/005_add_conditions_to_tuples.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/005_add_conditions_to_tuples.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/005_add_conditions_to_tuples.sql",
+      "upstreamPath": "assets/migrations/postgres/005_add_conditions_to_tuples.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "ac17d1f47784b6580d8e7431a013cf412e3fd0f66232358c4abb0a8fbacefcaf",
+      "categories": [
+        "alter-table",
+        "drops"
+      ],
+      "notes": "Adds and reverses multiple columns per table in two tables."
+    },
+    {
+      "id": "openfga/006_add_collate_index",
+      "path": "files/openfga/006_add_collate_index.sql",
+      "sourceRepo": "https://github.com/openfga/openfga",
+      "commit": "d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251",
+      "permalink": "https://github.com/openfga/openfga/blob/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/006_add_collate_index.sql",
+      "rawUrl": "https://raw.githubusercontent.com/openfga/openfga/d67ba7b1d2eaf945cffab3a9129ca1a4c7ad5251/assets/migrations/postgres/006_add_collate_index.sql",
+      "upstreamPath": "assets/migrations/postgres/006_add_collate_index.sql",
+      "license": "Apache-2.0",
+      "tool": "Goose",
+      "postgresVersionContext": "14+ (pinned project support)",
+      "sha256": "8e9175b6dd83ea9e03426b1da728fbc3c41cb7e26d5d451544b74f4855cd46f6",
+      "categories": [
+        "index-creation",
+        "create-index-concurrently",
+        "drops",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Goose NO TRANSACTION covers both directions of the concurrent collation-index swap."
+    },
+    {
+      "id": "pg_partman/pg_partman--5.0.0--5.0.1",
+      "path": "files/pg_partman/pg_partman--5.0.0--5.0.1.sql",
+      "sourceRepo": "https://github.com/pgpartman/pg_partman",
+      "commit": "e0a6c384a6c77846d2560f9251089339c9637814",
+      "permalink": "https://github.com/pgpartman/pg_partman/blob/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.0.0--5.0.1.sql",
+      "rawUrl": "https://raw.githubusercontent.com/pgpartman/pg_partman/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.0.0--5.0.1.sql",
+      "upstreamPath": "updates/pg_partman--5.0.0--5.0.1.sql",
+      "license": "PostgreSQL",
+      "tool": "PostgreSQL extension upgrade",
+      "postgresVersionContext": "14+ (pinned project prerequisite)",
+      "sha256": "0d772a486b9b25a9ccaa27cc6a0c030380dabf97cbb49af2002b93294260bcb1",
+      "categories": [
+        "alter-table",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Makes a foreign key deferrable; the two-transaction example is in a comment, not executed SQL."
+    },
+    {
+      "id": "pg_partman/pg_partman--5.2.2--5.2.3",
+      "path": "files/pg_partman/pg_partman--5.2.2--5.2.3.sql",
+      "sourceRepo": "https://github.com/pgpartman/pg_partman",
+      "commit": "e0a6c384a6c77846d2560f9251089339c9637814",
+      "permalink": "https://github.com/pgpartman/pg_partman/blob/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.2.2--5.2.3.sql",
+      "rawUrl": "https://raw.githubusercontent.com/pgpartman/pg_partman/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.2.2--5.2.3.sql",
+      "upstreamPath": "updates/pg_partman--5.2.2--5.2.3.sql",
+      "license": "PostgreSQL",
+      "tool": "PostgreSQL extension upgrade",
+      "postgresVersionContext": "14+ (pinned project prerequisite)",
+      "sha256": "011c71263ad08e9dcd9eed6f11698a81b015abae62afcfdd05563c7b322550b0",
+      "categories": [
+        "partitioned-tables",
+        "complex"
+      ],
+      "notes": "Replaces the helper that propagates replica identity from parent to child tables; retains the extension schema placeholder."
+    },
+    {
+      "id": "pg_partman/pg_partman--5.2.3--5.2.4",
+      "path": "files/pg_partman/pg_partman--5.2.3--5.2.4.sql",
+      "sourceRepo": "https://github.com/pgpartman/pg_partman",
+      "commit": "e0a6c384a6c77846d2560f9251089339c9637814",
+      "permalink": "https://github.com/pgpartman/pg_partman/blob/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.2.3--5.2.4.sql",
+      "rawUrl": "https://raw.githubusercontent.com/pgpartman/pg_partman/e0a6c384a6c77846d2560f9251089339c9637814/updates/pg_partman--5.2.3--5.2.4.sql",
+      "upstreamPath": "updates/pg_partman--5.2.3--5.2.4.sql",
+      "license": "PostgreSQL",
+      "tool": "PostgreSQL extension upgrade",
+      "postgresVersionContext": "14+ (pinned project prerequisite)",
+      "sha256": "635f4076a8d552b9abf649fa99cd5ab784529ca7363a652bf42f2ce8a02a4742",
+      "categories": [
+        "partitioned-tables",
+        "data-movement",
+        "ctes",
+        "complex"
+      ],
+      "notes": "Replaces partition-routing functions, including dynamic CTEs to move rows into child partitions; retains the extension schema placeholder."
+    },
+    {
+      "id": "pgmq/pgmq--1.8.0--1.8.1",
+      "path": "files/pgmq/pgmq--1.8.0--1.8.1.sql",
+      "sourceRepo": "https://github.com/pgmq/pgmq",
+      "commit": "51468f6ba2afeb4a4a9a67e9a532f37b590a0929",
+      "permalink": "https://github.com/pgmq/pgmq/blob/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/pgmq-extension/sql/pgmq--1.8.0--1.8.1.sql",
+      "rawUrl": "https://raw.githubusercontent.com/pgmq/pgmq/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/pgmq-extension/sql/pgmq--1.8.0--1.8.1.sql",
+      "upstreamPath": "pgmq-extension/sql/pgmq--1.8.0--1.8.1.sql",
+      "license": "PostgreSQL",
+      "tool": "PostgreSQL extension upgrade",
+      "postgresVersionContext": "15–18 (pinned project support)",
+      "sha256": "490a1ec99147c2c031dd3be7b785299bf18538026034a3ddf79f2caa7963ee15",
+      "categories": [
+        "alter-table",
+        "renames",
+        "index-creation",
+        "partitioned-tables",
+        "complex"
+      ],
+      "notes": "Replaces the archive conversion helper, which renames the old table and builds a range-partitioned replacement via dynamic SQL."
+    },
+    {
+      "id": "pgmq/pgmq--1.10.0--1.10.1",
+      "path": "files/pgmq/pgmq--1.10.0--1.10.1.sql",
+      "sourceRepo": "https://github.com/pgmq/pgmq",
+      "commit": "51468f6ba2afeb4a4a9a67e9a532f37b590a0929",
+      "permalink": "https://github.com/pgmq/pgmq/blob/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/pgmq-extension/sql/pgmq--1.10.0--1.10.1.sql",
+      "rawUrl": "https://raw.githubusercontent.com/pgmq/pgmq/51468f6ba2afeb4a4a9a67e9a532f37b590a0929/pgmq-extension/sql/pgmq--1.10.0--1.10.1.sql",
+      "upstreamPath": "pgmq-extension/sql/pgmq--1.10.0--1.10.1.sql",
+      "license": "PostgreSQL",
+      "tool": "PostgreSQL extension upgrade",
+      "postgresVersionContext": "15–18 (pinned project support)",
+      "sha256": "4755bb8a84fc718d87435aa6047875f93b5857df1a844c4fd6718b5e575e2d48",
+      "categories": [
+        "drops",
+        "partitioned-tables",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Replaces queue creation functions containing dynamic DDL for regular, unlogged and partitioned queues."
+    },
+    {
+      "id": "river/001_create_river_migration.up",
+      "path": "files/river/001_create_river_migration.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/001_create_river_migration.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/001_create_river_migration.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/001_create_river_migration.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "79def9ab1643beee7776c499559ec199a03b5b26036c122dc3ba13ec3d078dc0",
+      "categories": [
+        "constraints",
+        "index-creation"
+      ],
+      "notes": "Creates the migration ledger with a unique version index and River schema markers."
+    },
+    {
+      "id": "river/002_initial_schema.up",
+      "path": "files/river/002_initial_schema.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/002_initial_schema.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/002_initial_schema.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/002_initial_schema.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "8915c00d08ed98625865c705b6fd0bd14c113b7cdd0cb218ee894eca1d32ad03",
+      "categories": [
+        "defaults",
+        "index-creation",
+        "constraints",
+        "enum-changes",
+        "complex"
+      ],
+      "notes": "Initializes the job state enum, checks, GIN and partial indexes, and a trigger; retains River schema markers."
+    },
+    {
+      "id": "river/003_river_job_tags_non_null.up",
+      "path": "files/river/003_river_job_tags_non_null.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/003_river_job_tags_non_null.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/003_river_job_tags_non_null.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/003_river_job_tags_non_null.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "dedb183bb302c005bc72caf2901ff693bbab11413308c5e0567ddffb51e667ef",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "backfills"
+      ],
+      "notes": "Sets a default, backfills null tags, and enforces NOT NULL."
+    },
+    {
+      "id": "river/004_pending_and_more.up",
+      "path": "files/river/004_pending_and_more.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/004_pending_and_more.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/004_pending_and_more.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/004_pending_and_more.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "3f7418b0cf78ede9a9ec730bdfc4389a84e05989531b205fc4ece0d2bb10e390",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "backfills",
+        "constraints",
+        "enum-changes",
+        "complex"
+      ],
+      "notes": "Backfills job JSON columns before enforcing NOT NULL, adds a job enum value and replaces a check."
+    },
+    {
+      "id": "river/005_migration_unique_client.up",
+      "path": "files/river/005_migration_unique_client.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/005_migration_unique_client.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/005_migration_unique_client.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/005_migration_unique_client.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "b760f487152c7d92102869d46b8a64dc1e2094d5675e690ffbe52a747eee8431",
+      "categories": [
+        "alter-table",
+        "renames",
+        "drops",
+        "data-movement",
+        "index-creation",
+        "foreign-keys",
+        "constraints",
+        "complex"
+      ],
+      "notes": "Conditionally recreates the migration ledger and copies its rows before dropping the old table, then adds client tables."
+    },
+    {
+      "id": "river/006_bulk_unique.up",
+      "path": "files/river/006_bulk_unique.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/006_bulk_unique.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/006_bulk_unique.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/006_bulk_unique.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "3b133f7ce4662d3dc8bd4a57628e0e116a300b2635a79315557aa1369849f0fb",
+      "categories": [
+        "alter-table",
+        "index-creation",
+        "drops",
+        "complex"
+      ],
+      "notes": "Uses a bitmask expression for a partial unique index and removes its predecessor."
+    },
+    {
+      "id": "river/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up",
+      "path": "files/river/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up.sql",
+      "sourceRepo": "https://github.com/riverqueue/river",
+      "commit": "1f19003d1b65e32206f18bd73b222d61b1773972",
+      "permalink": "https://github.com/riverqueue/river/blob/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up.sql",
+      "rawUrl": "https://raw.githubusercontent.com/riverqueue/river/1f19003d1b65e32206f18bd73b222d61b1773972/riverdriver/riverpgxv5/migration/main/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up.sql",
+      "upstreamPath": "riverdriver/riverpgxv5/migration/main/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up.sql",
+      "license": "MPL-2.0",
+      "tool": "River Go migrator (pgx v5)",
+      "postgresVersionContext": "14–18 (pinned CI matrix)",
+      "sha256": "af01339fcb1687de1f768a570b6ad1e51d23300082aed60440f6a662a0e39d85",
+      "categories": [
+        "alter-table",
+        "defaults",
+        "drops",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Adds the notification outbox, removes obsolete client tables, and changes existing column defaults."
+    },
+    {
+      "id": "storage/0017-drop-owner-foreign-key",
+      "path": "files/storage/0017-drop-owner-foreign-key.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0017-drop-owner-foreign-key.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0017-drop-owner-foreign-key.sql",
+      "upstreamPath": "migrations/tenant/0017-drop-owner-foreign-key.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "00edfd4aefba445959c977fd1a510bd7900dcf9679bbc24615d43ad9768dd0da",
+      "categories": [
+        "alter-table",
+        "drops",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Drops the owner foreign key from objects."
+    },
+    {
+      "id": "storage/0019-alter-default-value-objects-id",
+      "path": "files/storage/0019-alter-default-value-objects-id.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0019-alter-default-value-objects-id.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0019-alter-default-value-objects-id.sql",
+      "upstreamPath": "migrations/tenant/0019-alter-default-value-objects-id.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "97345b8589da8fc5af940ffc6675b8616d21431f7e8bc5a9287d861e8b51e526",
+      "categories": [
+        "alter-table",
+        "defaults"
+      ],
+      "notes": "Switches the objects ID default to gen_random_uuid()."
+    },
+    {
+      "id": "storage/0021-s3-multipart-uploads",
+      "path": "files/storage/0021-s3-multipart-uploads.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0021-s3-multipart-uploads.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0021-s3-multipart-uploads.sql",
+      "upstreamPath": "migrations/tenant/0021-s3-multipart-uploads.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "d8f5094ea9696065da7764479ff5cee29a8575404a05f31342495f98d1685319",
+      "categories": [
+        "alter-table",
+        "defaults",
+        "index-creation",
+        "foreign-keys",
+        "constraints",
+        "complex"
+      ],
+      "notes": "Adds multipart tables and references, an expression index, row-level security, and dynamic SQL."
+    },
+    {
+      "id": "storage/0022-s3-multipart-uploads-big-ints",
+      "path": "files/storage/0022-s3-multipart-uploads-big-ints.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0022-s3-multipart-uploads-big-ints.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0022-s3-multipart-uploads-big-ints.sql",
+      "upstreamPath": "migrations/tenant/0022-s3-multipart-uploads-big-ints.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "700352759f3d889c23046b7bba351138d6e10bd8791768c504f68c7ffd98d8f4",
+      "categories": [
+        "alter-table",
+        "type-conversions"
+      ],
+      "notes": "Widens two multipart size columns to bigint."
+    },
+    {
+      "id": "storage/0029-create-prefixes",
+      "path": "files/storage/0029-create-prefixes.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0029-create-prefixes.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0029-create-prefixes.sql",
+      "upstreamPath": "migrations/tenant/0029-create-prefixes.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "f4322a848c2594de79f5d23138c4f4535fe6c42c470d1f36c1ddf7d1908e0472",
+      "categories": [
+        "backfills",
+        "data-movement",
+        "ctes",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Defines a prefix backfill using CTE batches and COMMIT in a DO block; the pinned runner skips the file via its ignore directive."
+    },
+    {
+      "id": "storage/0030-update-object-levels",
+      "path": "files/storage/0030-update-object-levels.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0030-update-object-levels.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0030-update-object-levels.sql",
+      "upstreamPath": "migrations/tenant/0030-update-object-levels.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "9db4e414c38eeafb74f064e01041b830ac65381335b6a924c6bbadb0c2d6ce68",
+      "categories": [
+        "backfills",
+        "ctes",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Defines an object-level backfill using writable CTEs and COMMIT in a DO block; the pinned runner skips the file via its ignore directive."
+    },
+    {
+      "id": "storage/0031-objects-level-index",
+      "path": "files/storage/0031-objects-level-index.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0031-objects-level-index.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0031-objects-level-index.sql",
+      "upstreamPath": "migrations/tenant/0031-objects-level-index.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "1774c6f25b4f901dc9658a4ada698e5044baef436d65bbeccba39f3ec39f371a",
+      "categories": [
+        "index-creation",
+        "create-index-concurrently",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Defines a concurrent unique index; the pinned runner skips the file via its ignore directive."
+    },
+    {
+      "id": "storage/0044-vector-bucket-type",
+      "path": "files/storage/0044-vector-bucket-type.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0044-vector-bucket-type.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0044-vector-bucket-type.sql",
+      "upstreamPath": "migrations/tenant/0044-vector-bucket-type.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "a6d094603db7e2c7403b7af40356cbf8559842566d9fbdd78befa7c152633d3f",
+      "categories": [
+        "enum-changes",
+        "complex"
+      ],
+      "notes": "Conditionally adds VECTOR to an existing enum inside a DO block."
+    },
+    {
+      "id": "storage/0053-drop-index-lower-name",
+      "path": "files/storage/0053-drop-index-lower-name.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0053-drop-index-lower-name.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0053-drop-index-lower-name.sql",
+      "upstreamPath": "migrations/tenant/0053-drop-index-lower-name.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "05c90c28b853c0d4eab3ace7a71f001a50acb40b21643ecb759e593bf5b79aa7",
+      "categories": [
+        "drops",
+        "transaction-boundaries"
+      ],
+      "notes": "Drops an index concurrently with a disable-transaction directive."
+    },
+    {
+      "id": "storage/0068-bucket-lifecycle-configuration",
+      "path": "files/storage/0068-bucket-lifecycle-configuration.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0068-bucket-lifecycle-configuration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0068-bucket-lifecycle-configuration.sql",
+      "upstreamPath": "migrations/tenant/0068-bucket-lifecycle-configuration.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "03a3832e3b2cbda93f36ce0de5b962d881fefe5d497321a09e9833e118c04139",
+      "categories": [
+        "alter-table",
+        "constraints",
+        "not-valid",
+        "complex"
+      ],
+      "notes": "Adds lifecycle configuration columns and three NOT VALID checks guarded by catalog queries."
+    },
+    {
+      "id": "storage/0069-validate-bucket-lifecycle-constraints",
+      "path": "files/storage/0069-validate-bucket-lifecycle-constraints.sql",
+      "sourceRepo": "https://github.com/supabase/storage",
+      "commit": "c0d596a798f8b21a9a5808875e6bfcdc02ca54a7",
+      "permalink": "https://github.com/supabase/storage/blob/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0069-validate-bucket-lifecycle-constraints.sql",
+      "rawUrl": "https://raw.githubusercontent.com/supabase/storage/c0d596a798f8b21a9a5808875e6bfcdc02ca54a7/migrations/tenant/0069-validate-bucket-lifecycle-constraints.sql",
+      "upstreamPath": "migrations/tenant/0069-validate-bucket-lifecycle-constraints.sql",
+      "license": "Apache-2.0",
+      "tool": "postgres-migrations with Storage runner",
+      "postgresVersionContext": "15 (development default)",
+      "sha256": "393f7b36e34a577167a77b226aabf478b529cedf0b2a66b1ac2ea9bdeaf82a7e",
+      "categories": [
+        "alter-table",
+        "constraints",
+        "validate-constraint"
+      ],
+      "notes": "Validates the three lifecycle checks in a separate migration."
+    },
+    {
+      "id": "temporal/temporal-v1.5-cluster_membership",
+      "path": "files/temporal/temporal-v1.5-cluster_membership.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.5/cluster_membership.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.5/cluster_membership.sql",
+      "upstreamPath": "schema/postgresql/v12/temporal/versioned/v1.5/cluster_membership.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "c6e6647301394d83fa4b7612d23870163bddee6a96c24ee59137caf1c2af8804",
+      "categories": [
+        "alter-table",
+        "type-conversions"
+      ],
+      "notes": "Widens the RPC address column."
+    },
+    {
+      "id": "temporal/temporal-v1.5-event",
+      "path": "files/temporal/temporal-v1.5-event.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.5/event.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.5/event.sql",
+      "upstreamPath": "schema/postgresql/v12/temporal/versioned/v1.5/event.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "deaaece112c3ba23b26989b84aa7d7987522b9718ce4eaeb7e4352716664092f",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults"
+      ],
+      "notes": "Adds required previous transaction IDs to history nodes with a zero default."
+    },
+    {
+      "id": "temporal/temporal-v1.8-alter_columns",
+      "path": "files/temporal/temporal-v1.8-alter_columns.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.8/alter_columns.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.8/alter_columns.sql",
+      "upstreamPath": "schema/postgresql/v12/temporal/versioned/v1.8/alter_columns.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "f74920d15ab74ddbb99b649d63d159957ef2de9ad6192134bdc58d24ecc4f0d0",
+      "categories": [
+        "alter-table",
+        "type-conversions"
+      ],
+      "notes": "Widens IDs on two workflow persistence tables."
+    },
+    {
+      "id": "temporal/temporal-v1.8-drop_unused_tasks_table",
+      "path": "files/temporal/temporal-v1.8-drop_unused_tasks_table.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.8/drop_unused_tasks_table.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.8/drop_unused_tasks_table.sql",
+      "upstreamPath": "schema/postgresql/v12/temporal/versioned/v1.8/drop_unused_tasks_table.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "77fa1af4214012fe66c46f71642b9a743a73f2c5173e5dd7d5aaf8fab9dbdc7f",
+      "categories": [
+        "drops"
+      ],
+      "notes": "Drops the unused tiered storage task table."
+    },
+    {
+      "id": "temporal/temporal-v1.16-fix_data_encoding_column",
+      "path": "files/temporal/temporal-v1.16-fix_data_encoding_column.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.16/fix_data_encoding_column.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/temporal/versioned/v1.16/fix_data_encoding_column.sql",
+      "upstreamPath": "schema/postgresql/v12/temporal/versioned/v1.16/fix_data_encoding_column.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "91f8d355eb4a30f6b3eb0fa541a9f93f13fc331d21cf0542c32a14c2f6244f10",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "drops"
+      ],
+      "notes": "Drops and re-adds the data encoding column as a required VARCHAR with an empty default."
+    },
+    {
+      "id": "temporal/visibility-v1.6-fix_root_workflow_info",
+      "path": "files/temporal/visibility-v1.6-fix_root_workflow_info.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/visibility/versioned/v1.6/fix_root_workflow_info.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/visibility/versioned/v1.6/fix_root_workflow_info.sql",
+      "upstreamPath": "schema/postgresql/v12/visibility/versioned/v1.6/fix_root_workflow_info.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "e26ffe2ff7a64950d6a3d8499c59d9ba58967fa34fa197955167f8e746ca7bde",
+      "categories": [
+        "alter-table",
+        "required-columns",
+        "defaults",
+        "drops",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Rebuilds two visibility columns and their expression indexes."
+    },
+    {
+      "id": "temporal/visibility-v1.14-add_external_payload_size_and_count_search_attributes",
+      "path": "files/temporal/visibility-v1.14-add_external_payload_size_and_count_search_attributes.sql",
+      "sourceRepo": "https://github.com/temporalio/temporal",
+      "commit": "32ef011fbd1e38ecddf656fc3f5026f6641cfeab",
+      "permalink": "https://github.com/temporalio/temporal/blob/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/visibility/versioned/v1.14/add_external_payload_size_and_count_search_attributes.sql",
+      "rawUrl": "https://raw.githubusercontent.com/temporalio/temporal/32ef011fbd1e38ecddf656fc3f5026f6641cfeab/schema/postgresql/v12/visibility/versioned/v1.14/add_external_payload_size_and_count_search_attributes.sql",
+      "upstreamPath": "schema/postgresql/v12/visibility/versioned/v1.14/add_external_payload_size_and_count_search_attributes.sql",
+      "license": "MIT",
+      "tool": "temporal-sql-tool",
+      "postgresVersionContext": "12 (upstream v12 schema track)",
+      "sha256": "f83ab9614bbc56a6c5babefb56978d7bfe1a2cccb797212882b85b716d749fac",
+      "categories": [
+        "alter-table",
+        "index-creation",
+        "create-index-concurrently",
+        "drops",
+        "complex"
+      ],
+      "notes": "Adds generated visibility columns and concurrent expression indexes; drops invalid predecessor indexes."
+    },
+    {
+      "id": "trigger.dev/20230213154802_simplify_org_template_status",
+      "path": "files/trigger.dev/20230213154802_simplify_org_template_status.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20230213154802_simplify_org_template_status/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20230213154802_simplify_org_template_status/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20230213154802_simplify_org_template_status/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "f79db0af14414ebf8bc187ec83c0d2222d36dab6be6435f0b454a02bf7d58b86",
+      "categories": [
+        "alter-table",
+        "defaults",
+        "type-conversions",
+        "renames",
+        "drops",
+        "enum-changes",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Replaces an enum and casts its dependent column within explicit BEGIN and COMMIT."
+    },
+    {
+      "id": "trigger.dev/20240319120645_convert_start_time_to_nanoseconds_since_epoch",
+      "path": "files/trigger.dev/20240319120645_convert_start_time_to_nanoseconds_since_epoch.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240319120645_convert_start_time_to_nanoseconds_since_epoch/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240319120645_convert_start_time_to_nanoseconds_since_epoch/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20240319120645_convert_start_time_to_nanoseconds_since_epoch/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "fe86d52678eb5f49e826bd31d87ca4065b3811e08ad7dbe2ad5e701de7b63670",
+      "categories": [
+        "alter-table",
+        "type-conversions",
+        "renames",
+        "drops",
+        "backfills",
+        "data-movement",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Backfills a temporary BIGINT column from a timestamp, swaps columns, and commits."
+    },
+    {
+      "id": "trigger.dev/20240517105224_remove_test_alert_type",
+      "path": "files/trigger.dev/20240517105224_remove_test_alert_type.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240517105224_remove_test_alert_type/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240517105224_remove_test_alert_type/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20240517105224_remove_test_alert_type/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "a9f648b4087751536affc4ca8d5c9a1d50ed314a3ea843c16a03cc5191a810f2",
+      "categories": [
+        "alter-table",
+        "type-conversions",
+        "renames",
+        "drops",
+        "enum-changes",
+        "transaction-boundaries",
+        "complex"
+      ],
+      "notes": "Recreates an enum across scalar and array columns in one explicit transaction."
+    },
+    {
+      "id": "trigger.dev/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts",
+      "path": "files/trigger.dev/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "afae8798cdf3b0ffb226baab346f19e458e4e84b51589090b86168f431fa951c",
+      "categories": [
+        "alter-table",
+        "enum-changes",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Adds a project alert enum value and a cascading task-run foreign key."
+    },
+    {
+      "id": "trigger.dev/20250212053026_create_task_event_partitioned_table",
+      "path": "files/trigger.dev/20250212053026_create_task_event_partitioned_table.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20250212053026_create_task_event_partitioned_table/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20250212053026_create_task_event_partitioned_table/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20250212053026_create_task_event_partitioned_table/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "073894048bbcd8a7f408b4b27a4893dba9e340f2882915e0518806da76f6b55b",
+      "categories": [
+        "index-creation",
+        "constraints",
+        "partitioned-tables",
+        "complex"
+      ],
+      "notes": "Creates a range-partitioned task events table with a composite primary key and indexes."
+    },
+    {
+      "id": "trigger.dev/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot",
+      "path": "files/trigger.dev/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "bb2fe549c9477516fdc7b09d2633eb951138c160443a3f34c68ed0383ca60b20",
+      "categories": [
+        "alter-table",
+        "drops",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Removes five foreign keys from the execution snapshot table."
+    },
+    {
+      "id": "trigger.dev/20260622120731_add_webhook_endpoint_and_delivery",
+      "path": "files/trigger.dev/20260622120731_add_webhook_endpoint_and_delivery.sql",
+      "sourceRepo": "https://github.com/triggerdotdev/trigger.dev",
+      "commit": "1483d021ebeb9152ae68f69bf7366290e42e609f",
+      "permalink": "https://github.com/triggerdotdev/trigger.dev/blob/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20260622120731_add_webhook_endpoint_and_delivery/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/triggerdotdev/trigger.dev/1483d021ebeb9152ae68f69bf7366290e42e609f/internal-packages/database/prisma/migrations/20260622120731_add_webhook_endpoint_and_delivery/migration.sql",
+      "upstreamPath": "internal-packages/database/prisma/migrations/20260622120731_add_webhook_endpoint_and_delivery/migration.sql",
+      "license": "Apache-2.0",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "17 (upstream Dockerfile)",
+      "sha256": "0b867f1a19fac2271278d546c68f1a1d3228dbe52dff383b345a80fcbdf386e5",
+      "categories": [
+        "defaults",
+        "index-creation",
+        "constraints",
+        "enum-changes",
+        "partitioned-tables",
+        "complex"
+      ],
+      "notes": "Adds webhook endpoints and a range-partitioned delivery table with parent indexes."
+    },
+    {
+      "id": "umami/02_report_schema_session_data",
+      "path": "files/umami/02_report_schema_session_data.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/02_report_schema_session_data/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/02_report_schema_session_data/migration.sql",
+      "upstreamPath": "prisma/migrations/02_report_schema_session_data/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "4cc3c14482cb8700574cbdbdb478a93ccd1cabb0aeed37dfffb77a80278ce575",
+      "categories": [
+        "alter-table",
+        "renames",
+        "defaults",
+        "index-creation",
+        "foreign-keys",
+        "constraints"
+      ],
+      "notes": "Renames event-data columns and adds report and session-data tables, indexes, and foreign keys."
+    },
+    {
+      "id": "umami/03_metric_performance_index",
+      "path": "files/umami/03_metric_performance_index.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/03_metric_performance_index/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/03_metric_performance_index/migration.sql",
+      "upstreamPath": "prisma/migrations/03_metric_performance_index/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "baf86a7adc077bc46ea646d86aabc5f613aeb311e63894366979a18f6a9ca48c",
+      "categories": [
+        "index-creation"
+      ],
+      "notes": "Adds a series of analytics indexes across event, session, and session-data tables."
+    },
+    {
+      "id": "umami/04_team_redesign",
+      "path": "files/umami/04_team_redesign.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/04_team_redesign/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/04_team_redesign/migration.sql",
+      "upstreamPath": "prisma/migrations/04_team_redesign/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "eb0e4ae2ef5204bc67ddb248358a402cd3bd88567d710f808f16c5124e5fd9cb",
+      "categories": [
+        "alter-table",
+        "backfills",
+        "data-movement",
+        "drops",
+        "index-creation"
+      ],
+      "notes": "Copies existing website owners to created_by and removes the team join table."
+    },
+    {
+      "id": "umami/14_add_link_and_pixel",
+      "path": "files/umami/14_add_link_and_pixel.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/14_add_link_and_pixel/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/14_add_link_and_pixel/migration.sql",
+      "upstreamPath": "prisma/migrations/14_add_link_and_pixel/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "2017fc23cad1365fa62fe1c18b70c631eb6a119a902f88672ffad63f90d80f3d",
+      "categories": [
+        "alter-table",
+        "type-conversions",
+        "defaults",
+        "index-creation",
+        "backfills",
+        "data-movement",
+        "complex"
+      ],
+      "notes": "Changes text widths, adds links and pixels, and rewrites and copies existing report configuration."
+    },
+    {
+      "id": "umami/17_remove_duplicate_key",
+      "path": "files/umami/17_remove_duplicate_key.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/17_remove_duplicate_key/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/17_remove_duplicate_key/migration.sql",
+      "upstreamPath": "prisma/migrations/17_remove_duplicate_key/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "19ef24e157ab33d7a34b13d06c5ffc2eca95ae4f668c1ccbbe219e48a09d13b1",
+      "categories": [
+        "drops"
+      ],
+      "notes": "Drops a series of duplicate unique indexes."
+    },
+    {
+      "id": "umami/23_update_session_data",
+      "path": "files/umami/23_update_session_data.sql",
+      "sourceRepo": "https://github.com/umami-software/umami",
+      "commit": "aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4",
+      "permalink": "https://github.com/umami-software/umami/blob/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/23_update_session_data/migration.sql",
+      "rawUrl": "https://raw.githubusercontent.com/umami-software/umami/aad2c4cedd5c0b3bc4d361843830a0bb47cf79c4/prisma/migrations/23_update_session_data/migration.sql",
+      "upstreamPath": "prisma/migrations/23_update_session_data/migration.sql",
+      "license": "MIT",
+      "tool": "Prisma Migrate",
+      "postgresVersionContext": "15 (upstream Compose image)",
+      "sha256": "5fc778b82bb34c3c04d78061e66d7036c3c51d0c506f5279f3c1cfc99f24f694",
+      "categories": [
+        "ctes",
+        "index-creation",
+        "complex"
+      ],
+      "notes": "Deduplicates session-data rows with a windowed CTE before creating a unique index."
+    }
+  ]
+}
