@@ -1,5 +1,7 @@
 # Test report · v0.1.0
 
+For the subsequent independent evaluation on 60 real migrations, see the [corpus accuracy report](CORPUS_ACCURACY_REPORT.md).
+
 The final handoff reran the unit/integration, Chrome and dependency checks on the product code from `b57b591` in an isolated worktree with an in-memory browser-test database. Earlier audit probes are identified below.
 
 | Check | Observed outcome |
