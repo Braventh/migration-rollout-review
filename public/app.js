@@ -2,8 +2,8 @@ const el = id => document.getElementById(id);
 const fields = ['actors', 'deploy', 'recovery', 'evidence'];
 const inputs = ['title', 'sql', 'snapshot', ...fields];
 const fieldLimits = { sql: [48000, 'Migration SQL'], snapshot: [18000, 'Database snapshot'] };
-const state = { id: null, plan: null, fingerprint: null, busy: false, library: [] };
-const controls = ['new', 'example', 'inspect', 'generate', 'save', 'copy'];
+const state = { id: null, updatedAt: null, plan: null, fingerprint: null, busy: false, library: [] };
+const controls = ['new', 'example', 'inspect', 'generate', 'save', 'copy', 'more-reviews'];
 
 function node(tag, content, className) {
   const element = document.createElement(tag);
@@ -14,6 +14,27 @@ function node(tag, content, className) {
 function notice(id, message = '') {
   el(id).textContent = message;
   el(id).hidden = !message;
+}
+function fieldError(id, message = '') {
+  const field = el(id);
+  const error = el(id + '-field-error');
+  if (!field || !error) return false;
+  const descriptions = (field.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(x => x && x !== error.id);
+  if (message) descriptions.push(error.id);
+  if (descriptions.length) field.setAttribute('aria-describedby', descriptions.join(' '));
+  else field.removeAttribute('aria-describedby');
+  notice(error.id, message);
+  if (fieldLimits[id] && !message) validateLimit(id);
+  else if (message) field.setAttribute('aria-invalid', 'true');
+  else field.removeAttribute('aria-invalid');
+  return true;
+}
+for (const id of inputs) {
+  const error = node('p', undefined, 'error');
+  error.id = id + '-field-error';
+  error.setAttribute('role', 'alert');
+  error.hidden = true;
+  el(id).after(error);
 }
 function validateLimit(id) {
   const [limit, label] = fieldLimits[id];
@@ -28,13 +49,18 @@ function requireLimits(...ids) {
   if (invalid.length) el(invalid[0]).focus();
   return !invalid.length;
 }
-async function api(path, input) {
+async function request(path, input) {
   const response = await fetch('/api/' + path, input === undefined ? {} : {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input)
   });
-  const payload = await response.json();
-  if (!response.ok) throw new Error(payload.error ?? 'The local server could not complete this request.');
-  return payload;
+  if (!response.ok) {
+    const payload = await response.json();
+    throw Object.assign(new Error(payload.error ?? 'The server could not complete this request.'), { field: payload.field });
+  }
+  return response;
+}
+async function api(path, input) {
+  return (await request(path, input)).json();
 }
 function input() {
   return {
@@ -44,14 +70,39 @@ function input() {
 }
 const fingerprint = () => JSON.stringify(input());
 const decisions = () => Object.fromEntries([...document.querySelectorAll('[data-decision]')].map(e => [e.dataset.decision, e.value]));
+const saveInput = () => ({ ...input(), id: state.id ?? undefined, updatedAt: state.updatedAt ?? undefined,
+  gateVersion: state.plan?.gateVersion, decisions: decisions() });
+const encoder = new TextEncoder();
+function preventDiscard(event) {
+  event.preventDefault();
+  event.returnValue = true;
+}
 function refreshActions() {
-  for (const id of controls) el(id).disabled = state.busy || (id === 'save' && state.fingerprint !== fingerprint());
+  const size = state.plan && state.maxBytes ? encoder.encode(JSON.stringify(saveInput())).length : 0;
+  const oversized = size > state.maxBytes;
+  notice('request-size', oversized
+    ? 'Review exceeds the total save limit of ' + state.maxBytes / 1024 + ' KiB. Shorten the inputs or decisions by at least ' +
+      (size - state.maxBytes).toLocaleString('en-US') + ' UTF-8 bytes to save.'
+    : size >= state.maxBytes * .75 ? 'This review uses ' + Math.ceil(size / 1024) + ' of ' + state.maxBytes / 1024 + ' KiB for saving.' : '');
+  for (const id of controls) el(id).disabled = state.busy || (id === 'save' && (oversized || state.fingerprint !== fingerprint()));
   for (const button of el('library').querySelectorAll('button')) button.disabled = state.busy;
+  if (hasChanges()) window.addEventListener('beforeunload', preventDiscard);
+  else window.removeEventListener('beforeunload', preventDiscard);
+}
+async function loadLibrary(append = false) {
+  const { reviews, next, maxBytes } = await api('reviews?page=' + encodeURIComponent(append ? state.next : ''));
+  state.next = next;
+  state.maxBytes = maxBytes;
+  const loaded = append ? state.library : [];
+  const ids = new Set(loaded.map(r => r.id));
+  state.library = loaded.concat(reviews.filter(r => !ids.has(r.id)));
+  renderLibrary();
 }
 function renderLibrary() {
   const library = el('library');
   library.replaceChildren();
   if (!state.library.length) library.textContent = 'No saved reviews yet.';
+  el('more-reviews').hidden = !state.next;
   for (const row of state.library) {
     const button = node('button', row.title);
     button.type = 'button';
@@ -59,14 +110,15 @@ function renderLibrary() {
     button.addEventListener('click', () => {
       if (hasChanges() && !window.confirm('Discard unsaved changes and open this review?')) return;
       run('Opening review…', async () => {
-        const { id, plan, snapshotText } = await api('reviews/' + row.id);
+        const { id, updatedAt, plan, snapshotText } = await api('reviews/' + row.id);
         fill({ ...plan, snapshot: snapshotText });
         state.id = id;
+        state.updatedAt = updatedAt;
         showPlan(plan);
         showExport();
         renderLibrary();
         notice('status', 'Opened saved review.');
-        el('review').scrollIntoView();
+        el('review-heading').focus();
       });
     });
     library.append(button);
@@ -80,8 +132,9 @@ function clearInspection() {
 }
 function fill(data = { context: {} }) {
   for (const id of inputs) el(id).value = (fields.includes(id) ? data.context[id] : data[id]) ?? '';
-  for (const id of Object.keys(fieldLimits)) validateLimit(id);
+  for (const id of inputs) fieldError(id);
   state.id = null;
+  state.updatedAt = null;
   state.plan = null;
   state.fingerprint = null;
   state.saved = null;
@@ -95,7 +148,7 @@ function hasChanges() {
     Boolean(inputs.some(id => el(id).value) || Object.values(decisions()).some(Boolean));
 }
 function showExport() {
-  el('download').href = '/api/reviews/' + state.id + '/markdown';
+  el('download').href = '/api/reviews/' + state.id + '/markdown?updatedAt=' + encodeURIComponent(state.updatedAt);
   el('download').hidden = false;
   state.saved = JSON.stringify([input(), decisions()]);
 }
@@ -106,12 +159,16 @@ async function run(label, work) {
   for (const area of document.querySelectorAll('[data-decision]')) area.readOnly = true;
   refreshActions();
   notice('error');
+  for (const id of inputs) fieldError(id);
   notice('status', label);
   try { await work(); }
   catch (err) {
     notice('status');
-    notice('error', err.message);
-    el('error').scrollIntoView({ block: 'nearest' });
+    if (fieldError(err.field, err.message)) el(err.field).focus();
+    else {
+      notice('error', err.message);
+      el('error').scrollIntoView({ block: 'nearest' });
+    }
   } finally {
     state.busy = false;
     for (const id of inputs) el(id).readOnly = false;
@@ -140,7 +197,7 @@ function showPlan(plan) {
   if (plan.snapshot) {
     const s = plan.snapshot;
     const block = node('div', undefined, 'info');
-    block.append(node('strong', 'Imported database evidence'),
+    block.append(node('strong', s.synthetic ? 'Synthetic example evidence — not captured from a database' : 'Imported database evidence'),
       node('p', s.role + ' · ' + s.capturedAt + ' · ' + printable(s.longTransactions) + ' visible transactions >60s' +
       (s.role === 'replica' ? ' · last replay age ' + printable(s.lastReplay) + ' s (not replica lag)' : '')));
     list(block, s.tables.map(t => t.schema + '.' + t.table + ' — ' + (t.kind
@@ -170,17 +227,42 @@ function showPlan(plan) {
     label.htmlFor = 'decision-' + i;
     const area = node('textarea');
     area.id = label.htmlFor;
+    area.setAttribute('aria-label', 'Team decision: ' + g.label + ', statement ' + g.statement +
+      (g.target ? ', ' + g.target : '') + ' (gate ' + (i + 1) + ')');
     area.dataset.decision = g.id;
     area.rows = 2;
     area.maxLength = 2000;
     area.placeholder = 'Record the decision, owner, and what remains open.';
     area.value = g.decision;
-    area.addEventListener('input', () => { el('download').hidden = true; });
+    area.addEventListener('input', () => { el('download').hidden = true; refreshActions(); });
     box.append(label, area);
     root.append(box);
   }
 }
 
+el('toggle-library').addEventListener('click', () => {
+  const button = el('toggle-library');
+  button.setAttribute('aria-expanded', String(button.getAttribute('aria-expanded') !== 'true'));
+});
+el('more-reviews').addEventListener('click', () => run('Loading older reviews…', async () => {
+  const newest = state.library.length;
+  await loadLibrary(true);
+  el('library').children[newest]?.focus();
+  notice('status');
+}));
+el('download').addEventListener('click', event => {
+  event.preventDefault();
+  run('Preparing Markdown…', async () => {
+    const response = await request(el('download').getAttribute('href').slice('/api/'.length));
+    const url = URL.createObjectURL(await response.blob());
+    const link = node('a');
+    link.href = url;
+    link.download = 'rollout-review.md';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notice('status');
+  });
+});
 el('new').addEventListener('click', () => {
   if (hasChanges() && !window.confirm('Discard unsaved changes and start a new review?')) return;
   fill();
@@ -194,7 +276,7 @@ el('example').addEventListener('click', () => {
     title: 'Require billing region on invoices',
     sql: 'ALTER TABLE billing.invoices ADD COLUMN region text NOT NULL;',
     snapshot: JSON.stringify({
-      version: 1, captured_at: new Date().toISOString(), role: 'primary',
+      version: 1, synthetic: true, captured_at: new Date().toISOString(), role: 'primary',
       last_replay_age_seconds: null, visible_long_transactions: 2,
       tables: [{ schema: 'billing', table: 'invoices', kind: 'r', bytes: 1342177280,
         rows_estimate: 2450000, indexes: 5, invalid_indexes: 0 }]
@@ -228,23 +310,36 @@ el('generate').addEventListener('click', () => requireLimits('sql', 'snapshot') 
   const notes = decisions();
   const plan = await api('draft', input());
   if (state.plan?.sqlFingerprint === plan.sqlFingerprint) {
-    for (const gate of plan.gates) gate.decision = notes[gate.id] ?? '';
+    if (state.plan.gateVersion === plan.gateVersion) {
+      for (const gate of plan.gates) gate.decision = notes[gate.id] ?? '';
+    } else {
+      for (const previous of state.plan.gates) {
+        if (!notes[previous.id]) continue;
+        const matches = plan.gates.filter(gate => gate.kind === previous.kind && gate.statement === previous.statement &&
+          gate.target === previous.target);
+        if (matches.length !== 1)
+          throw new Error('The rollout rules changed for a gate with a decision. Copy and clear that decision before regenerating the review.');
+        matches[0].decision = notes[previous.id];
+      }
+    }
   }
   showPlan(plan);
   notice('status', 'Draft ready. Review the evidence and record your decisions.');
   el('review').scrollIntoView();
 }));
 el('save').addEventListener('click', () => run('Saving review…', async () => {
-  const { id, plan } = await api('reviews', { ...input(), id: state.id ?? undefined, decisions: decisions() });
+  const { id, updatedAt, plan } = await api('reviews', saveInput());
   state.id = id;
+  state.updatedAt = updatedAt;
   showPlan(plan);
   showExport();
-  state.library = await api('reviews');
-  renderLibrary();
-  notice('status', 'Review saved locally. Markdown is ready to download.');
+  await loadLibrary();
+  notice('status', document.body.dataset.workspace === 'org'
+    ? 'Review saved to the shared library. Markdown is ready to download.'
+    : 'Review saved locally. Markdown is ready to download.');
 }));
 for (const id of inputs) el(id).addEventListener('input', () => {
-  if (fieldLimits[id]) validateLimit(id);
+  fieldError(id);
   if (id === 'sql') clearInspection();
   el('download').hidden = true;
   if (state.plan) notice('status', 'Inputs changed. Generate the review again before saving.');
@@ -252,8 +347,7 @@ for (const id of inputs) el(id).addEventListener('input', () => {
 });
 run('Loading workspace…', async () => {
   try {
-    state.library = await api('reviews');
-    renderLibrary();
+    await loadLibrary();
     notice('status');
   } catch (error) {
     el('library').textContent = 'Could not load local reviews.';

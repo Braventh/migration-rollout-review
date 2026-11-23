@@ -4,14 +4,14 @@ Review a PostgreSQL migration before it ships. Rollout Desk helps you collect sc
 
 ## Run locally
 
-Requires Node.js 24 or newer.
+Requires Node.js 24 or newer on PATH. Check with `node --version` and `npm --version`. If you already installed Node 24 with nvm, load nvm and activate it with `source ~/.nvm/nvm.sh && nvm use 24`.
 
 ```sh
 npm ci
 npm start
 ```
 
-Open **http://127.0.0.1:3000**. No Postgres server, credentials, paid service, account, or browser add-on is needed to try the example. Reviews persist in `data/reviews.sqlite` relative to where you start the app. Set `PORT` for a different local port or `REVIEW_DB` for a different database file. Stop the app before copying or deleting the database. The server listens on loopback only; do not expose it as a multi-user service.
+Open **http://127.0.0.1:3000**. No Postgres server, credentials, paid service, account, or browser add-on is needed to try the example. Reviews persist in `data/reviews.sqlite` relative to where you start the app. Set `PORT` for a different local port or `REVIEW_DB` for a different database file. Stop the app before copying or deleting the database. The server listens on loopback only. The private Devin App uses its authenticating proxy and a shared organization library; do not expose this server directly on a network.
 
 ## Try a review
 
@@ -20,7 +20,7 @@ Open **http://127.0.0.1:3000**. No Postgres server, credentials, paid service, a
 3. Add affected actors/jobs, deploy and flags, recovery and owner evidence. **Generate review**, then enter team decisions at applicable gates.
 4. **Save review**, reopen it from the library, and **Download Markdown** to share. The export includes pasted migration SQL and team notes; redact before sharing.
 
-Database counts are estimates; activity visibility depends on the DB role, and standby last-replay age is not lag. Catalog data doesn't show application compatibility, future runtime, or complete partition sizes. Unqualified tables are looked up in `public`; check your migration runner's search path. Keep using a dedicated linter for coverage beyond these rollout patterns.
+Database counts are estimates; activity visibility depends on the DB role, and standby last-replay age is not lag. Catalog data doesn't show application compatibility, future runtime, or complete partition sizes. Without an explicit search path, unqualified tables are looked up in `public` with a warning. A single explicit schema can scope unqualified names; ambiguous paths omit those names from the capture. Schema-qualify names when runner context is uncertain. Keep using a dedicated linter for coverage beyond these rollout patterns.
 
 ## Test and inspect
 

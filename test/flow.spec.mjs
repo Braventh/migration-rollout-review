@@ -26,23 +26,95 @@ test('inspect SQL, import a snapshot, edit a gate, save, reopen and download', a
   await page.reload();
   await page.getByRole('button', { name: 'Require billing region on invoices' }).click();
   await expect(page.getByLabel('Team decision')).toHaveValue(/Billing owns the stop/);
+  await expect(page.getByRole('heading', { name: 'Review the rollout' })).toBeFocused();
+  await expect(page.getByText('Synthetic example evidence', { exact: false })).toBeVisible();
   const download = page.waitForEvent('download');
   await page.getByRole('link', { name: 'Download Markdown' }).click();
   const artifact = await download;
   const body = await readFile(await artifact.path(), 'utf8');
   expect(body).toContain('Draft for human review');
   expect(body).toContain('Billing owns the stop');
+  expect(body).toContain('Synthetic example evidence');
+});
+
+test('long identifiers and titles stay in bounds and decisions have separate names', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const title = 'X'.repeat(120);
+  await page.getByLabel('Review title').fill(title);
+  const schema = 's'.repeat(63), table = 't'.repeat(63);
+  await page.getByLabel('PostgreSQL migration').fill(
+    'ALTER TABLE "' + schema + '"."' + table + '" DROP COLUMN first, DROP COLUMN second;');
+  await page.getByRole('button', { name: 'Inspect SQL' }).click();
+  await expect(page.locator('#inspection')).toContainText(schema + '.' + table);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await page.getByRole('button', { name: 'Generate review' }).click();
+  await expect(page.getByRole('textbox', { name: /Team decision:.*first/ })).toHaveCount(1);
+  await expect(page.getByRole('textbox', { name: /Team decision:.*second/ })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Save review' }).click();
+  await page.getByRole('button', { name: 'Saved reviews' }).click();
+  await expect(page.getByRole('button', { name: title })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
+
+test('unsaved edits warn on reload and cumulative UTF-8 decision bytes block saves', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Review title').fill('Byte budget');
+  await page.getByLabel('PostgreSQL migration').fill(
+    Array.from({ length: 66 }, (_, i) => 'ALTER TABLE billing.invoices ADD COLUMN c' + i + ' text NOT NULL;').join('\n'));
+  await page.getByRole('button', { name: 'Generate review' }).click();
+  const notes = page.getByLabel('Team decision');
+  await expect(notes).toHaveCount(66);
+  await notes.first().fill('unsaved choice');
+  const prompted = page.waitForEvent('dialog');
+  await page.evaluate(() => { setTimeout(() => location.reload(), 0); });
+  const dialog = await prompted;
+  expect(dialog.type()).toBe('beforeunload');
+  await dialog.dismiss();
+  await expect(notes.first()).toHaveValue('unsaved choice');
+  await notes.evaluateAll(areas => {
+    for (const area of areas) { area.value = '界'.repeat(2000); area.dispatchEvent(new Event('input')); }
+  });
+  await expect(page.locator('#request-size')).toContainText(/exceeds the total save limit.*UTF-8 bytes/);
+  await expect(page.getByRole('button', { name: 'Save review' })).toBeDisabled();
+  await notes.first().clear();
+  await notes.nth(1).clear();
+  await expect(page.getByRole('button', { name: 'Save review' })).toBeEnabled();
+});
+
+test('older reviews can be loaded and reopened', async ({ page, request }) => {
+  for (let i = 0; i < 101; i++) {
+    const response = await request.post('/api/reviews', { data: { title: 'Paged review ' + i, sql: 'SELECT 1;' } });
+    expect(response.status()).toBe(201);
+  }
+  await page.goto('/');
+  const older = page.getByRole('button', { name: 'Paged review 0', exact: true });
+  const more = page.getByRole('button', { name: 'Load older reviews' });
+  await expect(more).toBeVisible();
+  await expect(older).toHaveCount(0);
+  while (await more.isVisible() && await older.count() === 0) {
+    const response = page.waitForResponse(res => res.url().includes('/api/reviews?page='));
+    await more.click();
+    await response;
+    await expect(page.locator('#status')).toBeHidden();
+  }
+  await older.click();
+  await expect(page.getByLabel('Review title')).toHaveValue('Paged review 0');
 });
 
 test('invalid snapshot retains inputs, labels missing evidence, and wraps on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
+  await page.getByRole('button', { name: 'Saved reviews' }).click();
   await page.getByLabel('Review title').fill('<em>Literal title</em>');
   await page.getByLabel('PostgreSQL migration').fill('ALTER TABLE invoices RENAME COLUMN old TO new;');
   await page.getByLabel('Database snapshot').fill('unstructured text');
   await page.getByRole('button', { name: 'Generate review' }).click();
   await expect(page.getByRole('alert')).toContainText('single JSON cell');
   await expect(page.getByLabel('Database snapshot')).toHaveValue('unstructured text');
+  await expect(page.getByLabel('Database snapshot')).toBeFocused();
+  await expect(page.getByLabel('Database snapshot')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByLabel('Database snapshot')).toHaveAttribute('aria-describedby', /snapshot-field-error/);
   await page.getByLabel('Database snapshot').clear();
   await page.getByRole('button', { name: 'Generate review' }).click();
   await expect(page.getByRole('heading', { name: 'Rename · statement 1' })).toBeVisible();

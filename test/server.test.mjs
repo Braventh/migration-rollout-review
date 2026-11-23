@@ -5,13 +5,22 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { once } from 'node:events';
 import { request } from 'node:http';
+import { DatabaseSync } from 'node:sqlite';
 import { makeServer } from '../server.mjs';
 
-async function start(db) {
-  const server = makeServer(db).listen(0, '127.0.0.1');
+async function start(db, options) {
+  const server = makeServer(db, options).listen(0, '127.0.0.1');
   await once(server, 'listening');
   return { server, url: 'http://127.0.0.1:' + server.address().port };
 }
+
+test('organization workspace is explicitly selected by the server', async t => {
+  const { server, url } = await start(':memory:', { sharedWorkspace: true });
+  t.after(() => stop(server));
+  const html = await (await fetch(url)).text();
+  assert.match(html, /<body data-workspace="org">/);
+  assert.match(html, /Shared with everyone in your org who can open this app/);
+});
 async function stop(server) {
   await new Promise(resolve => server.close(resolve));
 }
@@ -38,10 +47,10 @@ test('API + SQLite: inspect, draft, create, update, restart, list, and export', 
   assert.equal((await draft.json()).gates[0].kind, 'required');
   const create = await post(service.url + '/api/reviews', input);
   assert.equal(create.status, 201);
-  const { id } = await create.json();
+  const { id, updatedAt } = await create.json();
   const path = '/api/reviews/' + id;
   assert.equal(create.headers.get('location'), path);
-  const change = await post(service.url + '/api/reviews', { ...input, id, title: 'Billing region – revision',
+  const change = await post(service.url + '/api/reviews', { ...input, id, updatedAt, title: 'Billing region – revision',
     decisions: { 'required-1-0': 'Billing owns reconciliation.' } });
   assert.equal(change.status, 200);
   await stop(service.server);
@@ -54,6 +63,95 @@ test('API + SQLite: inspect, draft, create, update, restart, list, and export', 
   const exported = await fetch(service.url + path + '/markdown');
   assert.match(exported.headers.get('content-disposition'), /attachment/);
   assert.match(await exported.text(), /Billing owns reconciliation/);
+});
+
+test('two saves of the same revision cannot overwrite each other even in the same millisecond', async t => {
+  const { server, url } = await start(':memory:');
+  t.after(() => stop(server));
+  const now = Date.now();
+  t.mock.method(Date, 'now', () => now);
+  const root = url + '/api/reviews';
+  const input = { title: 'Concurrent review', sql: 'UPDATE billing.invoices SET amount = 0;' };
+  const { id, updatedAt } = await (await post(root, input)).json();
+  const request = decision => post(root, { ...input, id, updatedAt, decisions: { 'backfill-1-0': decision } });
+  const responses = await Promise.all([request('First decision'), request('Second decision')]);
+  assert.deepEqual(responses.map(r => r.status).sort(), [200, 409]);
+  const saved = await responses.find(r => r.status === 200).json();
+  assert.notEqual(saved.updatedAt, updatedAt);
+  assert.match((await responses.find(r => r.status === 409).json()).error, /Reopen it from the library/);
+  assert.equal((await post(root, { ...input, id })).status, 409);
+  assert.equal((await fetch(root + '/' + id + '/markdown?updatedAt=' + encodeURIComponent(updatedAt))).status, 409);
+  assert.equal((await (await fetch(root + '/' + id)).json()).plan.gates[0].decision, saved.plan.gates[0].decision);
+});
+
+test('draft rejects non-object context/decisions and non-text supplied fields', async t => {
+  const { server, url } = await start(':memory:');
+  t.after(() => stop(server));
+  const base = { title: 'Validation', sql: 'ALTER TABLE accounts DROP COLUMN old;' };
+  for (const [extra, message, field] of [
+    [{ context: [] }, /Context must be a JSON object/],
+    [{ context: null }, /Context must be a JSON object/],
+    [{ context: 'legacy job' }, /Context must be a JSON object/],
+    [{ context: { actors: null } }, /must be text/, 'actors'],
+    [{ decisions: [] }, /Decisions must be a JSON object/],
+    [{ decisions: null }, /Decisions must be a JSON object/],
+    [{ decisions: { 'drop-1-0': [] } }, /Team decision must be text/],
+    [{ snapshot: null }, /Snapshot must be text/, 'snapshot']
+  ]) {
+    const response = await post(url + '/api/draft', { ...base, ...extra });
+    assert.equal(response.status, 422);
+    const body = await response.json();
+    assert.match(body.error, message);
+    assert.equal(body.field, field);
+  }
+});
+
+test('a type-confused revision fails without clearing existing notes', async t => {
+  const { server, url } = await start(':memory:');
+  t.after(() => stop(server));
+  const root = url + '/api/reviews';
+  const input = { title: 'Validation', sql: 'ALTER TABLE public.orders RENAME COLUMN code TO reference;', context: { actors: 'Legacy jobs still use code.' } };
+  const { id, updatedAt } = await (await post(root, input)).json();
+  assert.equal((await post(root, { ...input, id, updatedAt, context: 'wrong' })).status, 422);
+  const saved = await (await fetch(root + '/' + id)).json();
+  assert.equal(saved.plan.context.actors, input.context.actors);
+  assert.equal(saved.updatedAt, updatedAt);
+});
+
+test('saving a pre-audit review preserves its notes when newly recognized gates shift IDs', async t => {
+  const dir = mkdtempSync(join(tmpdir(), 'rollout-test-'));
+  const db = join(dir, 'reviews.sqlite');
+  const { server, url } = await start(db);
+  t.after(async () => { await stop(server); rmSync(dir, { recursive: true, force: true }); });
+  const root = url + '/api/reviews';
+  const input = { title: 'Old rules', sql: 'TRUNCATE app.logs; ALTER TABLE app.orders ADD COLUMN region text NOT NULL;' };
+  const { id, updatedAt, plan } = await (await post(root, input)).json();
+  const legacy = { ...plan, gateVersion: undefined, gates: [{ ...plan.gates[1], id: 'required-2-0' }] };
+  const connection = new DatabaseSync(db);
+  connection.prepare('UPDATE reviews SET payload = ? WHERE id = ?').run(JSON.stringify({ plan: legacy, snapshotText: '' }), id);
+  connection.close();
+  const result = await post(root, { ...input, id, updatedAt, decisions: { 'required-2-0': 'Wait for backfill.' } });
+  assert.equal(result.status, 200);
+  const saved = (await result.json()).plan;
+  assert.equal(saved.gates[0].decision, '');
+  assert.equal(saved.gates[1].decision, 'Wait for backfill.');
+});
+
+test('a write lock produces a retryable error and the same revision can be retried', async t => {
+  const dir = mkdtempSync(join(tmpdir(), 'rollout-test-'));
+  const db = join(dir, 'reviews.sqlite');
+  const { server, url } = await start(db);
+  const lock = new DatabaseSync(db);
+  t.after(async () => { lock.close(); await stop(server); rmSync(dir, { recursive: true, force: true }); });
+  const root = url + '/api/reviews';
+  const input = { title: 'Locked', sql: 'SELECT 1;' };
+  const { id, updatedAt } = await (await post(root, input)).json();
+  lock.exec('BEGIN IMMEDIATE');
+  const response = await post(root, { ...input, id, updatedAt });
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).error, /temporarily busy/);
+  lock.exec('ROLLBACK');
+  assert.equal((await post(root, { ...input, id, updatedAt })).status, 200);
 });
 
 test('HTTP boundary rejects hostile origins, non-JSON, invalid values and oversized bodies', async t => {
