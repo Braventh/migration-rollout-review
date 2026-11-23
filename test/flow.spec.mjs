@@ -57,6 +57,22 @@ test('long identifiers and titles stay in bounds and decisions have separate nam
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
 
+test('labels pasted execution scope and verified PostgreSQL behavior separately from a gate', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Review title').fill('Serial rollout');
+  await page.getByLabel('PostgreSQL migration').fill('-- +goose Up\nALTER TABLE app.t ADD COLUMN b bigserial;\n-- +goose Down\nALTER TABLE app.t DROP COLUMN b;');
+  const inspect = page.getByRole('button', { name: 'Inspect SQL' });
+  await inspect.click();
+  await expect(page.locator('#inspection-scope')).toContainText('A Down statement is not necessarily part of the forward rollout.');
+  await inspect.click();
+  await expect(page.locator('#inspection-scope')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Generate review' }).click();
+  await expect(page.getByText('Execution scope: unknown', { exact: true })).toBeVisible();
+  const gate = page.locator('article.gate').filter({ hasText: 'Table rewrite' });
+  await expect(gate.getByText('Static inference', { exact: true })).toBeVisible();
+  await expect(gate.getByText('Verified PostgreSQL behavior (not this rollout):', { exact: false })).toBeVisible();
+});
+
 test('unsaved edits warn on reload and cumulative UTF-8 decision bytes block saves', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Review title').fill('Byte budget');

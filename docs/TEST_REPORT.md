@@ -2,6 +2,43 @@
 
 For the subsequent independent evaluation on 60 real migrations, see the [corpus accuracy report](CORPUS_ACCURACY_REPORT.md).
 
+## Mission 4 · Risk engine
+
+Reproduce the before/after counts with `node corpus/evaluate.mjs 9533522` from the repository root after `npm ci`. Both revisions use the same parser dependency and the same **raw** inputs. This does not replay the independent reviewer's runner-specific transformations or relabel cases for precision or recall. Do not execute the corpus.
+
+| Raw corpus measure | Before | After |
+|---|---:|---:|
+| Analyzed / total | 54 / 60 | 54 / 60 |
+| Parse-rejected files | 6 | 6 (same files) |
+| Files with at least one finding | 38 | 42 |
+| Findings | 158 | 172 (12 new constraint, 2 rewrite) |
+| Files with manual items | 37 | 30 |
+| Files with manual items and no gate | 16 | 12 |
+| Manual items | 94 | 75 |
+| Original inspect notices | 30 | 30 |
+| Added lock notices | 0 | 85 |
+| Analyzed files marked execution scope unknown | 0 | 54 |
+
+Original finding counts did not change: index 72, removal 44, backfill 12, type 12, required 8, rename 7, enum 2, foreign key 1. Fewer generic manual items does not imply more migrations are safe. Goose Down and ignored Storage SQL are still parsed as text, not assumed forward execution. The six unparseable raw files still require rendered SQL or manual review.
+
+`npm test`: 40 passed, 0 failed. New regressions cover sequence-backed and stored generated rewrites, decision IDs, timeout scope, transaction lock windows, staged constraints, unknown runner scope, conditional new-table index advice, and Markdown labels.
+
+`CHROMIUM_EXECUTABLE="$(command -v google-chrome)" npm run test:e2e`: 8 passed (4.3s), including visibility of scope and confidence labels and repeated inspection. `npm audit`: found 0 vulnerabilities.
+
+The [Mission 4 PostgreSQL probes](audit/postgres/mission-4-probes.sql) ran in isolated, network-disabled Docker containers against regular throwaway tables with 1,000 rows. Run with `docker exec -i <disposable-container> psql -qAt -U postgres < docs/audit/postgres/mission-4-probes.sql` against a fresh database. Do not use a shared database.
+
+| Version | Observed result |
+|---|---|
+| 12.22 | PASS 11 probes |
+| 14.25 | PASS 11 probes |
+| 16.16 | PASS 11 probes |
+| 17.12 | PASS 11 probes |
+| 18.7 | PASS 12 probes, including VIRTUAL generated no-rewrite |
+
+The probes checked a filenode change for serial, smallserial, bigserial, identity and stored generated additions; lock persistence through an UPDATE; release/reset at commit; and standalone CHECK validation lock mode and catalog state. Prior [audit probes](audit/postgres/RESULTS.md) cover lock queueing, FK validation locks, the staged SET NOT NULL scan exception and concurrent-index failure modes. This run did not measure deployment time or rerun 13, 15, or versions outside 12–18.
+
+## Historical release checks
+
 The final handoff reran the unit/integration, Chrome and dependency checks on the product code from `b57b591` in an isolated worktree with an in-memory browser-test database. Earlier audit probes are identified below.
 
 | Check | Observed outcome |
