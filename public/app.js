@@ -225,8 +225,12 @@ el('copy').addEventListener('click', () => run('Copying capture SQL…', async (
   notice('status', 'Capture SQL copied.');
 }));
 el('generate').addEventListener('click', () => requireLimits('sql', 'snapshot') && run('Generating review…', async () => {
-  const sameSql = state.plan?.sql === el('sql').value.trim();
-  showPlan(await api('draft', { ...input(), decisions: sameSql ? decisions() : {} }));
+  const notes = decisions();
+  const plan = await api('draft', input());
+  if (state.plan?.sqlFingerprint === plan.sqlFingerprint) {
+    for (const gate of plan.gates) gate.decision = notes[gate.id] ?? '';
+  }
+  showPlan(plan);
   notice('status', 'Draft ready. Review the evidence and record your decisions.');
   el('review').scrollIntoView();
 }));

@@ -92,6 +92,7 @@ export function makeServer(filename) {
         const payload = JSON.parse(record.payload);
         if (match[2]) return reply(res, 200, 'text/markdown; charset=utf-8', markdown(payload.plan),
           { 'Content-Disposition': 'attachment; filename="rollout-review.md"' });
+        payload.plan.sqlFingerprint ??= (await inspect(payload.plan.sql)).sqlFingerprint;
         return json(res, 200, { id: record.id, updatedAt: record.updatedAt, ...payload });
       }
       throw new RequestError(404, 'Not found.');

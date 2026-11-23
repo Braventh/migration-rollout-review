@@ -1,4 +1,5 @@
 import { parse } from 'pgsql-parser';
+import { createHash } from 'node:crypto';
 
 export class InputError extends Error {}
 export const limits = { title: 120, sql: 48000, snapshot: 18000, note: 2000, targets: 12 };
@@ -40,6 +41,9 @@ export async function inspect(input) {
   catch (error) { throw new InputError('PostgreSQL could not parse this SQL: ' + String(error.message).slice(0, 200)); }
   stmts ??= [];
   if (stmts.length > 100) throw new InputError('Review up to 100 statements at a time.');
+  const sqlFingerprint = createHash('sha256')
+    .update(JSON.stringify(stmts.map(({ stmt }) => stmt), (key, value) => key === 'location' ? undefined : value))
+    .digest('hex');
 
   const relations = new Map(), findings = [], uncovered = [], notices = [];
   const created = [], removed = [], copies = [];
@@ -141,7 +145,7 @@ export async function inspect(input) {
   if (unqualified) notices.push('Snapshot lookup uses public for unqualified relations. Verify that matches the migration runner search_path or schema-qualify the migration in this review.');
   if (relations.size > limits.targets) notices.push('Snapshot covers only the first ' + limits.targets + ' distinct relations; split the review for coverage of additional relations.');
   const targets = [...relations.values()].slice(0, limits.targets);
-  return { targets, findings, uncovered, notices, control: !findings.length && !uncovered.length, query: captureQuery(targets) };
+  return { targets, findings, uncovered, notices, sqlFingerprint, control: !findings.length && !uncovered.length, query: captureQuery(targets) };
 }
 
 export function field(input, label, max, required = false) {
@@ -261,7 +265,8 @@ export async function draft(input) {
     if (snapshot.role === 'replica') notices.push('Standby replay age is not transport or apply lag; it can rise when the primary is idle. This snapshot cannot establish primary activity or replica health.');
   }
   const unanswered = Object.entries(contextFields).filter(([key]) => !context[key]).map(([, label]) => label);
-  return { title, sql, snapshot, context, gates, notices, unanswered, uncovered: analysis.uncovered, control: analysis.control };
+  return { title, sql, snapshot, context, gates, notices, unanswered, sqlFingerprint: analysis.sqlFingerprint,
+    uncovered: analysis.uncovered, control: analysis.control };
 }
 
 const literalText = text => String(text).split(/\r\n|[\n\r\u000b\u000c\u0085\u2028\u2029]/u).map(line => '    ' + line).join('\n');

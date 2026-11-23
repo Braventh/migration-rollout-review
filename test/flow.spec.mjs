@@ -76,3 +76,26 @@ test('oversized SQL and snapshots stay intact with explicit size errors', async 
   await expect(page.getByRole('alert')).toHaveText(/Database snapshot exceeds 18,000 characters/);
   await expect(page.getByLabel('Team decision')).toHaveCount(0);
 });
+
+test('SQL comments preserve saved decisions, but changed statements clear them', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Load example' }).click();
+  const generate = page.getByRole('button', { name: 'Generate review' });
+  const decision = page.getByLabel('Team decision');
+  await generate.click();
+  await decision.fill('Billing owns the decision.');
+  await page.getByRole('button', { name: 'Save review' }).click();
+  await expect(page.getByRole('link', { name: 'Download Markdown' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Require billing region on invoices' }).click();
+  const sql = page.getByLabel('PostgreSQL migration');
+  const changed = '-- Reviewed by Billing\n' + (await sql.inputValue()).replace('ADD COLUMN', 'ADD /* note */ COLUMN');
+  await sql.fill(changed);
+  await generate.click();
+  await expect(page.getByRole('status')).toHaveText(/Draft ready/);
+  await expect(decision).toHaveValue('Billing owns the decision.');
+  await sql.fill(changed.replace('region text', 'region integer'));
+  await generate.click();
+  await expect(page.getByRole('status')).toHaveText(/Draft ready/);
+  await expect(decision).toHaveValue('');
+});
