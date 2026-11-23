@@ -86,3 +86,13 @@ test('markdown preserves user decisions as inert text', async () => {
   assert.match(output, /Team decision:\*\* recorded below/);
   assert.match(output, /Draft for human review/);
 });
+
+test('markdown indents each logical line of pasted text and quoted SQL identifiers', async () => {
+  const sql = 'ALTER TABLE billing."invoice\rhistory" DROP COLUMN previous;';
+  const actors = 'first\rsecond\r\nthird\u000bfourth\u000cfifth\u0085sixth\u2028seventh\u2029eighth';
+  const output = markdown(await draft({ title: 'Review', sql, context: { actors } }));
+  assert.doesNotMatch(output, /[\r\u000b\u000c\u0085\u2028\u2029]/u);
+  assert.ok(output.includes('    "billing"."invoice\n    history" · previous'));
+  assert.ok(output.includes('    ALTER TABLE billing."invoice\n    history" DROP COLUMN previous;'));
+  assert.ok(output.includes('    first\n    second\n    third\n    fourth\n    fifth\n    sixth\n    seventh\n    eighth'));
+});

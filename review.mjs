@@ -264,7 +264,7 @@ export async function draft(input) {
   return { title, sql, snapshot, context, gates, notices, unanswered, uncovered: analysis.uncovered, control: analysis.control };
 }
 
-const literalText = text => String(text).split(/\r?\n/).map(line => '    ' + line).join('\n');
+const literalText = text => String(text).split(/\r\n|[\n\r\u000b\u000c\u0085\u2028\u2029]/u).map(line => '    ' + line).join('\n');
 const displayValue = n => n === null ? 'unknown' : String(n);
 
 export function markdown(plan) {
