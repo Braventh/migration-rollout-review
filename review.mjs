@@ -19,6 +19,8 @@ const patterns = {
   enum: ['Enum compatibility', 'Separate database acceptance, consumer readiness and first emission of the new value.', 'Replay persisted values through workers, webhooks and eligible recovery builds.', 'A reachable consumer rejects the value; turning a flag off does not remove stored values.'],
   type: ['Type change', 'Keep a compatible representation while copying, reconciling and switching; decide the legacy representability cap.', 'Exercise client/SDK serialization, JSON and boundary values, conversion and recovery.', 'Legacy range, conversion or rollback behavior has not been proven.'],
   fk: ['Foreign key', 'Make writers compatible before any enforcement and reconcile historical data before validation.', 'Replay the importer and recovery version. NOT VALID skips the historical scan, not enforcement on new writes for an enforced foreign key.', 'Child-before-parent writes or unresolved historical orphans remain.'],
+  rewrite: ['Table rewrite', 'Plan table work separately from the application cutover and rehearse on representative data.', 'Check whether the column will actually be added, table and index size, disk headroom, locks and recovery.', 'The rewrite or its blocking window does not fit the measured rollout budget.'],
+  constraint: ['Constraint lifecycle', 'Separate application compatibility, enforcement, historical validation and any later removal.', 'Check the constraint definition and existing rows on the actual target; confirm the runner boundaries.', 'Relevant writes or historical rows do not meet the constraint, or enforcement changes are not coordinated.'],
   backfill: ['Data backfill candidate', 'Choose source of truth, batching, restart behavior and concurrent edit policy; reconcile before cutover.', 'Race a resumed batch with a live writer; compare stale non-null values as well as missing values.', 'Retries can overwrite newer data or parity and operational limits are not met.'],
   split: ['Possible table split', 'Expand separately, sync and reconcile, switch apps and workers, then retire old storage in a separate release.', 'Rehearse retry replay/drain, verify parity and confirm the recovery window has closed.', 'Retries or eligible recovery builds still require old storage, or data differs.']
 };
@@ -36,6 +38,37 @@ const cascade = node => node.behavior === 'DROP_CASCADE' ? ' CASCADE may remove 
 const ctes = node => (node?.withClause?.ctes ?? []).map(x => x.CommonTableExpr);
 const stringValue = node => node?.A_Const?.sval?.sval;
 const volatileDefaults = new Set(['clock_timestamp', 'random', 'gen_random_uuid', 'nextval', 'setval', 'timeofday']);
+const serialTypes = new Set(['serial', 'serial2', 'serial4', 'serial8', 'smallserial', 'bigserial']);
+const timeouts = new Set(['lock_timeout', 'statement_timeout']);
+const lockQueue = 'Waiting for a conflicting lock can queue later traffic. Rehearse a bounded lock_timeout and a controlled retry; verify the setting in the migration session.';
+const strongAlter = new Set(['AT_AddColumn', 'AT_SetNotNull', 'AT_DropColumn', 'AT_AlterColumnType', 'AT_DropConstraint']);
+const lockNotes = {
+  exclusive: 'ACCESS EXCLUSIVE conflicts with ordinary reads and writes.',
+  share: 'A regular index build takes SHARE, which conflicts with writes.'
+};
+const executionCaveat = 'Execution scope is unknown. Findings describe pasted SQL, not confirmed forward execution. Paste the exact forward SQL after runner filtering or template expansion, and confirm how the runner groups statements.';
+
+function executionNotes(sql, statements) {
+  const notes = [executionCaveat];
+  if (/^[ \t]*--[ \t]*\+goose[ \t]+(?:up|down)\b/im.test(sql))
+    notes.push('Possible Goose direction markers: both sections are analyzed as pasted. A Down statement is not necessarily part of the forward rollout.');
+  if (/^[ \t]*--[ \t]*postgres-migrations[ \t]+ignore\b/im.test(sql))
+    notes.push('Possible runner ignore directive: the runner may skip this file entirely.');
+  if (/^[ \t]*--[ \t]*(?:\+goose[ \t]+no[ \t]+transaction|postgres-migrations[ \t]+disable-transaction)\b/im.test(sql))
+    notes.push('Possible runner transaction directive: confirm runner support and the effective transaction boundaries.');
+  if (statements > 1)
+    notes.push('If the runner sends multiple statements in one PostgreSQL simple query or wraps them together, locks can span statements and concurrent operations may fail even without explicit BEGIN.');
+  return notes;
+}
+
+function defaultKind(value) {
+  if (!value || value.A_Const?.isnull) return 'missing';
+  if (value.A_Const) return 'literal';
+  return [...walk(value)].some(part => {
+    const fn = names(part.FuncCall?.funcname);
+    return volatileDefaults.has(fn.at(-1)) && (fn.length === 1 || fn.at(-2) === 'pg_catalog');
+  }) ? 'volatile' : 'expression';
+}
 
 function sourceRanges(from, visibleCtes = []) {
   const references = [];
@@ -67,7 +100,8 @@ export async function inspect(input) {
   const sql = field(input, 'Migration SQL', limits.sql, true, 'sql');
   let stmts;
   try { ({ stmts } = await parse(sql)); }
-  catch (error) { throw new InputError('PostgreSQL could not parse this SQL: ' + String(error.message).slice(0, 200), 'sql'); }
+  catch (error) { throw new InputError('PostgreSQL could not parse this SQL: ' + String(error.message).slice(0, 200) +
+    '. If your runner transforms the file, paste its rendered forward SQL.', 'sql'); }
   stmts ??= [];
   if (stmts.length > 100) throw new InputError('Review up to 100 statements at a time.', 'sql');
   const sqlFingerprint = createHash('sha256')
@@ -96,10 +130,14 @@ export async function inspect(input) {
     if (r.assumed) unqualified = true;
     relations.set(keyOf(r), { schema: r.schema, table: r.table });
   };
-  const flag = (kind, index, r, item = '', note = '') => {
-    findings.push({ id: kind + '-' + index + '-' + findings.length, kind, statement: index,
-      target: [r && display(r), item].filter(Boolean).join(' · '), note });
+  const lockNotices = [], justCreated = new Set();
+  let standardGates = 0, supplementalGates = 0;
+  const flag = (kind, index, r, item = '', note = '', details = {}) => {
+    const ordinal = ['rewrite', 'constraint'].includes(kind) ? 'extra-' + supplementalGates++ : standardGates++;
+    findings.push({ id: kind + '-' + index + '-' + ordinal, kind, statement: index, confidence: 'static inference',
+      target: [r && display(r), item].filter(Boolean).join(' · '), note, ...details });
   };
+  const begin = () => ({ startPath: sessionPath, enums: new Set(), lock: null, reportedLockSpan: false });
 
   for (const [i, { stmt }] of stmts.entries()) {
     const [type, node] = Object.entries(stmt)[0];
@@ -109,10 +147,27 @@ export async function inspect(input) {
       (type !== 'ReindexStmt' || node.kind === 'REINDEX_OBJECT_TABLE');
     const r = isTableRelation ? fromRange(node.relation) : null;
     const unknown = detail => uncovered.push('Statement ' + index + ': ' + detail);
+    if (!['CreateStmt', 'IndexStmt'].includes(type)) justCreated.clear();
+    const work = ['UpdateStmt', 'InsertStmt', 'DeleteStmt', 'MergeStmt', 'IndexStmt', 'ReindexStmt'].includes(type) ||
+      (type === 'AlterTableStmt' && node.cmds.some(x => x.AlterTableCmd?.subtype === 'AT_ValidateConstraint')) ||
+      ctes(node).some(x => ['UpdateStmt', 'InsertStmt', 'DeleteStmt', 'MergeStmt'].some(k => x.ctequery?.[k]));
+    if (work && transaction?.lock && !transaction.reportedLockSpan) {
+      const { statement, mode } = transaction.lock;
+      lockNotices.push('Statement ' + statement + ' → ' + index + ': A prior ' + mode +
+        ' lock can be held through this later data or index work until the transaction ends. Split the operations across commits where correctness permits.');
+      transaction.reportedLockSpan = true;
+    }
+    const strongLock = (mode, label) => {
+      if (transaction && !transaction.lock) transaction.lock = { statement: index, mode };
+      lockNotices.push('Statement ' + index + ': ' + label + ' ' + lockQueue);
+    };
     add(r);
     const fk = (c, name) => {
       add(fromRange(c.pktable));
-      flag('fk', index, r, c.conname ?? name ?? '', c.skip_validation ? 'Historical validation is deferred.' : '');
+      flag('fk', index, r, c.conname ?? name ?? '', !c.is_enforced ? 'The SQL does not request enforcement. Check target-version support.' :
+        c.skip_validation ? 'Historical validation is deferred; new writes are still checked.' : '', {
+        behavior: c.is_enforced ? 'Standalone ADD FOREIGN KEY takes SHARE ROW EXCLUSIVE on both tables.' : undefined
+      });
     };
     const concurrent = operation => {
       if (transaction) notices.push('Statement ' + index + ': ' + operation + ' cannot run inside a transaction block.');
@@ -149,10 +204,10 @@ export async function inspect(input) {
     switch (type) {
       case 'TransactionStmt':
         if (['TRANS_STMT_BEGIN', 'TRANS_STMT_START'].includes(node.kind)) {
-          transaction ??= { startPath: sessionPath, enums: new Set() };
+          transaction ??= begin();
         } else if (['TRANS_STMT_COMMIT', 'TRANS_STMT_ROLLBACK'].includes(node.kind)) {
           if (transaction && node.kind === 'TRANS_STMT_ROLLBACK') sessionPath = transaction.startPath;
-          transaction = node.chain ? { startPath: sessionPath, enums: new Set() } : null;
+          transaction = node.chain ? begin() : null;
           localPath = null;
         } else {
           if (node.kind === 'TRANS_STMT_ROLLBACK_TO') localPath = unknownPath;
@@ -174,39 +229,75 @@ export async function inspect(input) {
             sessionPath = next;
             localPath = null;
           }
+        } else if (timeouts.has(node.name)) {
+          notices.push('Statement ' + index + ': ' + node.name + ' adjustment is present in the SQL. ' +
+            (node.is_local ? 'SET LOCAL only applies in the current transaction. ' : '') +
+            'Verify the effective value and scope with the runner; the setting may be disabled, reset or not reach the DDL.');
         } else unknown('Session setting other than search_path; verify it with the runner.');
         break;
       case 'AlterTableStmt':
         if (!r) { unknown('This ALTER targets a non-table object; verify its dependencies manually.'); break; }
+        if (node.objtype === 'OBJECT_TABLE' && node.cmds.some(({ AlterTableCmd: cmd }) =>
+          strongAlter.has(cmd.subtype) || (cmd.subtype === 'AT_AddConstraint' &&
+            ['CONSTR_PRIMARY', 'CONSTR_UNIQUE', 'CONSTR_CHECK', 'CONSTR_NOTNULL'].includes(cmd.def?.Constraint?.contype))))
+          strongLock('ACCESS EXCLUSIVE', lockNotes.exclusive);
         for (const { AlterTableCmd: cmd } of node.cmds) {
           const col = cmd.def?.ColumnDef, c = cmd.def?.Constraint, name = cmd.name ?? col?.colname;
           const constraints = (col?.constraints ?? []).map(x => x.Constraint).filter(Boolean);
           if (cmd.subtype === 'AT_AddColumn') {
+            const value = constraints.find(c => c.contype === 'CONSTR_DEFAULT')?.raw_expr;
+            const kind = defaultKind(value);
+            const typeNames = names(col?.typeName?.names);
+            const serial = typeNames.length === 1 && serialTypes.has(typeNames[0]) && !col.typeName.arrayBounds?.length;
+            const generated = constraints.find(c => c.contype === 'CONSTR_GENERATED');
+            const identity = constraints.some(c => c.contype === 'CONSTR_IDENTITY');
+            const rewriteCause = serial ? 'Serial adds a sequence-backed default.' :
+              identity ? 'Adding an identity column initializes a sequence-backed value for existing rows.' :
+                generated?.generated_kind === 's' ? 'PostgreSQL computes stored generated values for existing rows.' :
+                  kind === 'volatile' ? 'The recognized DEFAULT requires a rewrite if it resolves to the standard volatile function.' : '';
+            if (generated && generated.generated_kind !== 's')
+              unknown('Confirm generated column storage mode and target PostgreSQL version; VIRTUAL is supported from PostgreSQL 18.');
             if (constraints.some(c => c.contype === 'CONSTR_NOTNULL' || c.contype === 'CONSTR_PRIMARY')) {
-              const value = constraints.find(c => c.contype === 'CONSTR_DEFAULT')?.raw_expr;
               let note;
-              if (!value || value.A_Const?.isnull) {
+              if (rewriteCause || generated) {
+                note = 'Verify the generated value and any required constraint, including compatibility with existing writers.';
+              } else if (kind === 'missing') {
                 note = 'No non-null default is supplied. Adding this NOT NULL column fails if the table has existing rows.';
                 if (r?.schema && !r.excluded) requiredWithoutDefault.push({ index, target: { schema: r.schema, table: r.table } });
-              } else if (value.A_Const) {
+              } else if (kind === 'literal') {
                 note = 'Literal non-null DEFAULT: PostgreSQL 11+ can add the column without a table rewrite for this default. Still review locking and compatibility.';
-              } else if ([...walk(value)].some(part => {
-                const fn = names(part.FuncCall?.funcname);
-                return volatileDefaults.has(fn.at(-1)) && (fn.length === 1 || fn.at(-2) === 'pg_catalog');
-              })) {
-                note = 'A known volatile DEFAULT (if it resolves to the standard function) requires a full table rewrite. Rehearse the lock and rewrite or split the change.';
               } else note = 'DEFAULT is an expression. Verify its volatility and rewrite behavior with the database owner before rollout.';
+              if (kind === 'volatile') note += ' A recognized volatile DEFAULT can require a full table rewrite.';
               flag('required', index, r, name, note);
             }
+            if (rewriteCause) flag('rewrite', index, r, name,
+              rewriteCause + (cmd.missing_ok ? ' If the column already exists, IF NOT EXISTS skips the addition.' : ''),
+              kind === 'volatile' && !serial && !identity && !generated ? {} : {
+                behavior: 'Adding this column to a populated regular table rewrites it on tested PostgreSQL 12, 14, 16, 17 and 18. This does not establish runtime or production state.'
+              });
             for (const c of constraints.filter(x => x.contype === 'CONSTR_FOREIGN')) fk(c, name);
             if (constraints.some(c => ['CONSTR_PRIMARY', 'CONSTR_UNIQUE'].includes(c.contype)))
               flag('index', index, r, name, 'This constraint can build an index.');
-            if (constraints.some(c => !['CONSTR_NOTNULL', 'CONSTR_NULL', 'CONSTR_FOREIGN', 'CONSTR_PRIMARY', 'CONSTR_UNIQUE'].includes(c.contype)))
+            if (kind === 'expression' || constraints.some(c => !['CONSTR_NOTNULL', 'CONSTR_NULL', 'CONSTR_FOREIGN',
+              'CONSTR_PRIMARY', 'CONSTR_UNIQUE', 'CONSTR_DEFAULT', 'CONSTR_IDENTITY', 'CONSTR_GENERATED'].includes(c.contype)))
               unknown('ADD COLUMN has additional constraints or defaults outside the rules.');
-          } else if (cmd.subtype === 'AT_SetNotNull') flag('required', index, r, name);
+          } else if (cmd.subtype === 'AT_SetNotNull') flag('required', index, r, name,
+            'On PostgreSQL 12+, a valid CHECK that proves non-nullness can avoid the SET NOT NULL scan. Keep the CHECK in place during this step.', {
+              behavior: 'SET NOT NULL normally scans under ACCESS EXCLUSIVE unless PostgreSQL can prove the column already contains no NULLs.'
+            });
           else if (cmd.subtype === 'AT_DropColumn') { flag('drop', index, r, name, cascade(cmd).trim()); removed.push(r); }
           else if (cmd.subtype === 'AT_AlterColumnType') flag('type', index, r, name);
           else if (cmd.subtype === 'AT_AddConstraint' && c?.contype === 'CONSTR_FOREIGN') fk(c, name);
+          else if (cmd.subtype === 'AT_AddConstraint' && c?.contype === 'CONSTR_CHECK' && c.skip_validation)
+            flag('constraint', index, r, c.conname, c.is_enforced
+              ? 'CHECK NOT VALID enforces the check for new or updated rows without checking historical rows yet.'
+              : 'The CHECK is not enforced. Confirm support on the target PostgreSQL version.');
+          else if (cmd.subtype === 'AT_ValidateConstraint')
+            flag('constraint', index, r, name, 'Confirm the constraint kind and whether it is already valid. Keep validation separate from stronger DDL locks.', {
+              behavior: 'Standalone validation of an enforced NOT VALID CHECK or foreign key checks existing rows under SHARE UPDATE EXCLUSIVE. Foreign key validation also takes ROW SHARE on the referenced table.'
+            });
+          else if (cmd.subtype === 'AT_DropConstraint')
+            flag('constraint', index, r, name, 'This can remove enforcement or supporting objects. Verify the constraint kind and dependencies; confirm IF EXISTS does not skip it.' + cascade(cmd));
           else if (cmd.subtype === 'AT_AddConstraint' && ['CONSTR_PRIMARY', 'CONSTR_UNIQUE'].includes(c?.contype))
             flag('index', index, r, c.conname, 'This constraint can build an index unless it uses an existing one.');
           else if (['AT_AttachPartition', 'AT_DetachPartition'].includes(cmd.subtype)) {
@@ -256,7 +347,8 @@ export async function inspect(input) {
         flag('index', index, r, r ? '' : [node.relation?.schemaname, node.relation?.relname, node.name].filter(Boolean).map(quote).join('.'),
           'Verify which indexes are rebuilt and how the runner executes REINDEX.');
         break;
-      case 'IndexStmt':
+      case 'IndexStmt': {
+        const newTarget = r?.schema && !r.excluded && justCreated.has(keyOf(r));
         if (node.concurrent) {
           concurrent('CREATE INDEX CONCURRENTLY');
           if (r?.schema && !r.excluded) {
@@ -264,10 +356,14 @@ export async function inspect(input) {
             else concurrentIndexes.push({ index, target: { schema: r.schema, table: r.table } });
           }
         }
+        if (!node.concurrent && !newTarget) strongLock('SHARE', lockNotes.share);
         flag('index', index, r, node.idxname, node.concurrent
-          ? 'CONCURRENTLY is requested; confirm the runner does not wrap it in a transaction.'
+          ? 'CONCURRENTLY is requested; confirm the runner does not wrap it in a transaction.' +
+            (node.if_not_exists ? ' IF NOT EXISTS can skip an existing invalid index; verify the resulting index is usable.' : '')
+          : newTarget ? 'If the earlier CREATE TABLE ran as pasted, this build targets a new table rather than blocking pre-existing writers. Check when the table becomes visible to clients.'
           : 'CONCURRENTLY is not requested; review blocked writes with the database owner.');
         break;
+      }
       case 'AlterEnumStmt':
         if (!node.oldVal) transaction?.enums.add(node.newVal);
         flag('enum', index, null, names(node.typeName).map(quote).join('.') + ' · ' + [node.oldVal, node.newVal].filter(x => x != null).join(' → '),
@@ -282,6 +378,8 @@ export async function inspect(input) {
         if (node.relation?.relpersistence === 't') temporary.add(node.relation.relname);
         else {
           created.push(r);
+          if (r?.schema && !r.excluded && !node.if_not_exists && !node.partspec && !node.partbound && !node.inhRelations?.length)
+            justCreated.add(keyOf(r));
           if (node.partspec && r?.schema && !r.excluded) partitionParents.add(keyOf(r));
         }
         node.inhRelations?.map(x => fromRange(x.RangeVar)).forEach(add);
@@ -323,7 +421,7 @@ export async function inspect(input) {
   const targets = [...relations.values()].slice(0, limits.targets);
   const control = !findings.length && !uncovered.length && !notices.length &&
     stmts.every(({ stmt }) => Boolean(stmt.SelectStmt));
-  return { targets, findings, uncovered, notices, sqlFingerprint, control, concurrentIndexes, requiredWithoutDefault,
+  return { targets, findings, uncovered, notices, lockNotices, execution: executionNotes(sql, stmts.length), sqlFingerprint, control, concurrentIndexes, requiredWithoutDefault,
     query: captureQuery(targets) };
 }
 
@@ -439,7 +537,7 @@ export function refreshSnapshotNotices(plan) {
         table.bytes === 1342177280 && table.rows === 2450000 && table.indexes === 5 && table.invalid === 0)
       snapshot = { ...snapshot, synthetic: true };
   }
-  return { ...plan, snapshot, notices };
+  return { ...plan, snapshot, notices, noticeLabels: notices.map(noticeConfidence), execution: plan.execution ?? [executionCaveat] };
 }
 
 export async function draft(input) {
@@ -465,7 +563,7 @@ export async function draft(input) {
     const [label, order, verify, pause] = patterns[kind];
     return { id, kind, label, ...finding, order, verify, pause, decision: notes.get(id) ?? '' };
   });
-  const notices = [...analysis.notices];
+  const notices = [...analysis.notices, ...analysis.lockNotices];
   if (!snapshot) notices.push('No database snapshot supplied. Operational evidence is unknown.');
   if (snapshot) {
     if (analysis.targets.length > snapshot.tables.length || snapshot.tables.some(t => !t.kind))
@@ -489,7 +587,13 @@ export async function draft(input) {
   }
   const unanswered = Object.entries(contextFields).filter(([key]) => !context[key]).map(([, label]) => label);
   return refreshSnapshotNotices({ title, sql, snapshot, context, gates, notices, unanswered, gateVersion: 1, sqlFingerprint: analysis.sqlFingerprint,
-    uncovered: analysis.uncovered, control: analysis.control });
+    uncovered: analysis.uncovered, control: analysis.control, execution: analysis.execution });
+}
+
+function noticeConfidence(note) {
+  if (/estimated to contain|is ≥1 GiB or estimated at/.test(note)) return 'Heuristic estimate';
+  if (/No database snapshot|not found or not included|timestamp is stale/.test(note)) return 'Unknown';
+  return 'Static inference';
 }
 
 const literalText = text => String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -498,7 +602,8 @@ const displayValue = n => n === null ? 'unknown' : String(n);
 
 export function markdown(plan) {
   const lines = ['# PostgreSQL rollout review', '', literalText(plan.title), '',
-    '**Draft for human review — not deployment approval.**', '', '## Release context', ''];
+    '**Draft for human review — not deployment approval.**', '', '## Execution scope (unknown)', '',
+    ...(plan.execution ?? [executionCaveat]).map(note => '- ' + note), '', '## Release context', ''];
   for (const [key, label] of Object.entries(contextFields)) {
     lines.push('### ' + label, '', plan.context[key] ? literalText(plan.context[key]) : '_Unanswered_', '');
   }
@@ -510,17 +615,19 @@ export function markdown(plan) {
       '- Last replay age (seconds; not lag): ' + displayValue(lastReplay),
       '- Visible transactions older than 60s: ' + displayValue(longTransactions) + ' (role visibility limited)', '');
     for (const t of tables) lines.push(literalText(display(t) + ': ' +
-      (t.kind ? 'kind ' + t.kind + '; size ' + displayValue(t.bytes) + ' bytes; estimated rows ' + displayValue(t.rows) +
+      (t.kind ? 'kind ' + t.kind + '; size ' + displayValue(t.bytes) + ' bytes; estimated rows ' + displayValue(t.rows) + ' (heuristic)' +
         '; indexes ' + displayValue(t.indexes) + '; invalid/not ready ' + displayValue(t.invalid) : 'not found')), '');
   } else lines.push('_No snapshot supplied._', '');
-  for (const note of plan.notices) lines.push('- ' + note);
+  for (const note of plan.notices) lines.push('- **' + noticeConfidence(note) + ':** ' + note);
   lines.push('', '## Rollout decisions', '');
   if (plan.control) lines.push('No material rollout pattern identified in these literal controls or comments. Verify the complete deploy bundle.', '');
   else if (!plan.gates.length) lines.push('No supported pattern identified. Manual review is required.', '');
   for (const g of plan.gates) {
     lines.push('### ' + g.label + ' · statement ' + g.statement, '');
     if (g.target) lines.push(literalText(g.target), '');
+    lines.push('**Static inference**', '');
     if (g.note) lines.push(g.note, '');
+    if (g.behavior) lines.push('**Verified PostgreSQL behavior (not this rollout):** ' + g.behavior, '');
     lines.push('- **Proposed sequence:** ' + g.order, '- **Verify:** ' + g.verify, '- **Pause if:** ' + g.pause,
       '- **Team decision:** ' + (g.decision ? 'recorded below' : '_Unanswered_'), '');
     if (g.decision) lines.push(literalText(g.decision), '');

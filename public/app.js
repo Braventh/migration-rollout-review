@@ -129,6 +129,7 @@ function clearInspection() {
   el('capture').hidden = true;
   el('query-details').open = false;
   el('inspection').textContent = 'Inspect your SQL to generate a scoped database capture query.';
+  el('inspection-scope')?.remove();
 }
 function fill(data = { context: {} }) {
   for (const id of inputs) el(id).value = (fields.includes(id) ? data.context[id] : data[id]) ?? '';
@@ -194,6 +195,10 @@ function showPlan(plan) {
     root.textContent = 'No draft yet. Add your context and generate a review to see the proposed gates.';
     return;
   }
+  const scope = node('div', undefined, 'warning');
+  scope.append(node('strong', 'Execution scope: unknown'));
+  list(scope, plan.execution);
+  root.append(scope);
   if (plan.snapshot) {
     const s = plan.snapshot;
     const block = node('div', undefined, 'info');
@@ -203,13 +208,15 @@ function showPlan(plan) {
     list(block, s.tables.map(t => t.schema + '.' + t.table + ' — ' + (t.kind
       ? printable(t.bytes) + ' bytes · ' + printable(t.rows) + ' estimated rows · ' + printable(t.indexes) +
         ' indexes (' + printable(t.invalid) + ' invalid/not ready)'
-      : 'not found')), 'snapshot-list');
+      : 'unknown (not found in capture)')), 'snapshot-list');
+    block.append(node('p', 'Estimated row counts are heuristic; capture does not establish current production state.'));
     root.append(block);
   }
   if (plan.notices.length || plan.unanswered.length || plan.uncovered.length) {
     const block = node('div', undefined, 'warning');
     block.append(node('strong', 'Evidence and coverage to check'));
-    list(block, [...plan.notices, ...plan.unanswered.map(x => 'Unanswered: ' + x), ...plan.uncovered]);
+    list(block, [...plan.notices.map((note, i) => plan.noticeLabels[i] + ': ' + note),
+      ...plan.unanswered.map(x => 'Unknown: ' + x), ...plan.uncovered.map(x => 'Manual review: ' + x)]);
     root.append(block);
   }
   if (plan.control) root.append(node('p', 'No material pattern found in these literal controls or comments. Check the complete deploy bundle.', 'info'));
@@ -217,7 +224,9 @@ function showPlan(plan) {
   for (const [i, g] of plan.gates.entries()) {
     const box = node('article', undefined, 'gate');
     box.append(node('h3', g.label + ' · statement ' + g.statement), node('p', g.target, 'target'));
+    box.append(node('p', 'Static inference'));
     if (g.note) box.append(node('p', g.note));
+    if (g.behavior) box.append(node('p', 'Verified PostgreSQL behavior (not this rollout): ' + g.behavior));
     for (const [label, text] of [['Proposed sequence', g.order], ['Verify', g.verify], ['Pause if', g.pause]]) {
       const line = node('p');
       line.append(node('strong', label + ': '), text);
@@ -297,6 +306,11 @@ el('inspect').addEventListener('click', () => requireLimits('sql') && run('Inspe
   el('inspection').textContent = a.targets.length ? 'Scoped to ' + a.targets.map(r => r.schema + '.' + r.table).join(', ') + '.'
     : 'No table targets found. An optional snapshot can still capture connection-level evidence.';
   if (a.notices.length) el('inspection').append(' ', a.notices.join(' '));
+  const scope = node('div', undefined, 'warning');
+  scope.id = 'inspection-scope';
+  list(scope, [...a.execution.map(note => 'Unknown: ' + note), ...a.lockNotices.map(note => 'Static inference: ' + note)]);
+  el(scope.id)?.remove();
+  el('inspection').after(scope);
   el('query').textContent = a.query;
   notice('status', 'Capture query is ready.');
   el('context').scrollIntoView();

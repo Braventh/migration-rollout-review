@@ -2,6 +2,11 @@
 
 | Priority | Finding | State |
 |---|---|---|
+| High | Sequence-backed or stored generated additions could silently rewrite populated tables. | Fixed: separate rewrite gates with isolated PostgreSQL evidence and conditional wording; production cost remains unknown. |
+| High | No lock queue or cross-statement lock guidance. | Fixed for selected strong-lock statements and explicit transactions followed by recognized work. Actual runner batching, savepoints, and unmodeled locks require manual confirmation. |
+| Medium | Validation and removal appeared only as generic manual review. | Fixed: separate staged constraint guidance; constraint identity, target version and whether a validation will scan still depend on schema state. |
+| Medium | Pasted SQL findings could look like known forward execution; new-table builds could look like existing-writer risks. | Mitigated: execution remains explicitly unknown, possible directives get a warning, and simple new-table patterns get conditional framing. No runner or template interpreter. |
+| Known | PostgreSQL audit gaps outside the targeted changes. | Type rewrites vs metadata-only conversions, partitioned FK version compatibility, PG ≤13 zero row estimates and multi-statement lock coverage are not fully modeled. Six original raw corpus parse failures remain. |
 | High | Treating complex SELECT as a control could miss modifying CTEs or function effects. | Fixed: only plain literal SELECT or comments qualify as a control; regression checked. |
 | High | Snapshot results for other tables could mislead a reviewer. | Fixed: known version and strict scoped relation/metric validation; mark missing or stale evidence. |
 | Medium | PostgreSQL greatest(0, NULL) can yield 0, making an unknown standby replay age look measured. | Fixed: explicit NULL guard; isolated primary checked, standby not exercised. |

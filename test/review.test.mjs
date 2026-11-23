@@ -2,6 +2,74 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { draft, inspect, markdown } from '../review.mjs';
 
+test('column rewrites are independent of required and index gates, without renumbering existing decisions', async () => {
+  const sql = 'ALTER TABLE app.t ADD COLUMN a serial, ADD COLUMN b smallserial, ADD COLUMN c bigserial, ' +
+    'ADD COLUMN d int GENERATED ALWAYS AS IDENTITY, ADD COLUMN IF NOT EXISTS e int GENERATED ALWAYS AS (c + 1) STORED, ' +
+    'ADD COLUMN f int GENERATED ALWAYS AS (c + 2) VIRTUAL, ADD COLUMN g float8 DEFAULT random(), ' +
+    'ADD COLUMN h int NOT NULL DEFAULT 1; CREATE INDEX ix ON app.t(h)';
+  const plan = await draft({ title: 'Rewrites', sql, decisions: { 'required-1-0': 'Existing note', 'index-2-1': 'Keep index note' } });
+  assert.deepEqual(plan.gates.filter(g => g.kind === 'rewrite').map(g => g.target.at(-1)), ['a', 'b', 'c', 'd', 'e', 'g']);
+  assert.match(plan.gates.find(g => g.target.endsWith(' · e')).note, /IF NOT EXISTS/);
+  assert.match(plan.gates.find(g => g.target.endsWith(' · e')).behavior, /tested PostgreSQL 12, 14, 16, 17 and 18/);
+  assert.match(plan.uncovered.join(' '), /VIRTUAL is supported from PostgreSQL 18/);
+  assert.deepEqual(plan.gates.filter(g => g.decision).map(g => g.decision), ['Existing note', 'Keep index note']);
+  assert.doesNotMatch(plan.uncovered.join(' '), /additional constraints or defaults/);
+});
+
+test('timeouts and cross-statement lock windows respect literal transaction boundaries', async () => {
+  const p = await inspect("BEGIN; SET LOCAL lock_timeout = '1s'; ALTER TABLE app.t ADD COLUMN c int; " +
+    "UPDATE app.t SET c = 1; COMMIT; CREATE INDEX ix ON app.t(c); SET statement_timeout = 0;");
+  assert.match(p.notices.join('\n'), /SET LOCAL only applies in the current transaction/);
+  assert.match(p.notices.join('\n'), /statement_timeout.*may be disabled/);
+  assert.deepEqual(p.uncovered, []);
+  assert.match(p.lockNotices.join('\n'), /Statement 3 → 4:.*ACCESS EXCLUSIVE.*until the transaction ends/);
+  assert.match(p.lockNotices.join('\n'), /queue later traffic.*lock_timeout/);
+  const split = await inspect('BEGIN; ALTER TABLE app.t ADD COLUMN c int; COMMIT; BEGIN; UPDATE app.t SET c = 1; COMMIT;');
+  assert.doesNotMatch(split.lockNotices.join('\n'), /prior ACCESS EXCLUSIVE lock/);
+  assert.match(split.execution.join('\n'), /multiple statements.*simple query/);
+  const index = await inspect('BEGIN; CREATE INDEX ix ON app.t(c); UPDATE app.other SET c = 1; ROLLBACK;');
+  assert.match(index.lockNotices.join('\n'), /Statement 2 → 3:.*prior SHARE lock/);
+});
+
+test('constraint enforcement, validation, and removal have distinct gates', async () => {
+  const sql = 'ALTER TABLE app.t ADD CONSTRAINT fk FOREIGN KEY (p) REFERENCES app.p(id) NOT VALID; ' +
+    'ALTER TABLE app.t ADD CONSTRAINT ck CHECK (i IS NOT NULL) NOT VALID; ' +
+    'ALTER TABLE app.t VALIDATE CONSTRAINT ck; ALTER TABLE app.t ALTER COLUMN i SET NOT NULL; ' +
+    'ALTER TABLE app.t DROP CONSTRAINT IF EXISTS fk CASCADE;';
+  const p = await inspect(sql);
+  assert.deepEqual(p.findings.map(g => g.kind), ['fk', 'constraint', 'constraint', 'required', 'constraint']);
+  assert.match(p.findings[0].note, /new writes are still checked/);
+  assert.match(p.findings[1].note, /without checking historical rows/);
+  assert.match(p.findings[2].behavior, /SHARE UPDATE EXCLUSIVE.*ROW SHARE/);
+  assert.match(p.findings[3].note, /PostgreSQL 12\+.*avoid the SET NOT NULL scan/);
+  assert.match(p.findings[4].note, /remove enforcement.*CASCADE/);
+  assert.deepEqual(p.uncovered, []);
+  const notEnforced = await inspect('ALTER TABLE app.t ADD CONSTRAINT ck CHECK (i > 0) NOT ENFORCED;');
+  assert.match(notEnforced.findings[0].note, /not enforced/);
+});
+
+test('raw runner scope stays unknown and index advice distinguishes conditional targets', async () => {
+  const sql = '-- +goose Up\n-- +goose NO TRANSACTION\nCREATE TABLE app.t (i int); CREATE INDEX ix ON app.t(i);\n' +
+    '-- +goose Down\nDROP TABLE app.t;';
+  const plan = await draft({ title: 'Runner', sql });
+  assert.match(plan.execution.join('\n'), /unknown.*not confirmed forward execution/);
+  assert.match(plan.execution.join('\n'), /both sections are analyzed/);
+  assert.match(plan.execution.join('\n'), /Possible runner transaction directive/);
+  assert.match(plan.gates[0].note, /new table rather than blocking pre-existing writers/);
+  assert.equal(plan.gates[1].kind, 'drop');
+  assert.match(markdown(plan), /Execution scope \(unknown\)/);
+  assert.match(markdown(plan), /\*\*Static inference\*\*/);
+  assert.match(markdown(plan), /\*\*Unknown:\*\* No database snapshot/);
+  const p = await inspect('-- postgres-migrations ignore\nCREATE TABLE IF NOT EXISTS app.t (i int); ' +
+    'CREATE INDEX ix ON app.t(i); CREATE INDEX CONCURRENTLY IF NOT EXISTS iy ON app.t(i);');
+  assert.match(p.execution.join('\n'), /may skip this file entirely/);
+  assert.match(p.findings[0].note, /blocked writes/);
+  assert.match(p.findings[1].note, /skip an existing invalid index/);
+  const staleCreate = await inspect('BEGIN; CREATE TABLE app.t(i int); ROLLBACK; CREATE INDEX ix ON app.t(i);');
+  assert.match(staleCreate.findings[0].note, /blocked writes/);
+  await assert.rejects(inspect('ALTER TABLE {{.Schema}}.t ADD COLUMN c int;'), /paste its rendered forward SQL/);
+});
+
 const cases = {
   required: 'ALTER TABLE "Order" ADD COLUMN region text NOT NULL',
   rename: 'ALTER TABLE "Profile" RENAME COLUMN bio TO biography',
