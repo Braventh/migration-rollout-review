@@ -38,6 +38,12 @@ test('uncovered SQL is reported; affected tables and runner warning are derived'
   assert.match(result.notices[1], /search_path/);
   assert.ok(result.uncovered.length);
 });
+
+test('a plain index build in a transaction does not get the concurrent runner warning', async () => {
+  const result = await inspect('BEGIN; CREATE INDEX idx ON billing.invoices(id); COMMIT;');
+  assert.match(result.findings[0].note, /CONCURRENTLY is not requested/);
+  assert.doesNotMatch(result.notices.join(' '), /concurrent index and explicit transaction/);
+});
 test('capture scopes identifiers safely and limits repeated targets', async () => {
   const result = await inspect("ALTER TABLE public.\"a'b\" DROP COLUMN t;");
   assert.equal(result.notices.length, 0);

@@ -139,7 +139,7 @@ export async function inspect(input) {
     if (created.some(x => same(x, target)) && sources.some(x => removed.some(y => same(x, y))))
       flag('split', index, target, '', 'New table, copy from old storage, and destructive change to the source occur in one bundle.');
   }
-  if (findings.some(f => f.kind === 'index' && f.note.startsWith('CONCURRENTLY')) &&
+  if (stmts.some(({ stmt }) => stmt.IndexStmt?.concurrent) &&
       stmts.some(({ stmt }) => stmt.TransactionStmt?.kind === 'TRANS_STMT_BEGIN' || stmt.TransactionStmt?.kind === 'TRANS_STMT_START'))
     notices.push('A concurrent index and explicit transaction start both appear in this bundle. Inspect actual statement order; a concurrent build cannot run inside a transaction block.');
   if (unqualified) notices.push('Snapshot lookup uses public for unqualified relations. Verify that matches the migration runner search_path or schema-qualify the migration in this review.');
