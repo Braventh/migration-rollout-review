@@ -235,6 +235,17 @@ export function readSnapshot(raw, targets) {
   return { role: data.role, capturedAt: new Date(data.captured_at).toISOString(), lastReplay, longTransactions, tables };
 }
 
+const snapshotAgeNotice = 'Snapshot timestamp is stale or ahead of this machine. Refresh or document why it applies.';
+
+export function refreshSnapshotNotices(plan) {
+  const notices = plan.notices.filter(notice => notice !== snapshotAgeNotice);
+  if (plan.snapshot) {
+    const age = Date.now() - Date.parse(plan.snapshot.capturedAt);
+    if (age > 86400000 || age < -300000) notices.push(snapshotAgeNotice);
+  }
+  return { ...plan, notices };
+}
+
 export async function draft(input) {
   if (!isObject(input)) throw new InputError('Send a JSON object.');
   const title = field(input.title, 'Review title', limits.title, true);
@@ -252,8 +263,6 @@ export async function draft(input) {
   const notices = [...analysis.notices];
   if (!snapshot) notices.push('No database snapshot supplied. Operational evidence is unknown.');
   if (snapshot) {
-    const age = Date.now() - Date.parse(snapshot.capturedAt);
-    if (age > 86400000 || age < -300000) notices.push('Snapshot timestamp is stale or ahead of this machine. Refresh or document why it applies.');
     if (analysis.targets.length > snapshot.tables.length || snapshot.tables.some(t => !t.kind))
       notices.push('Some target relations were not found or not included. Verify environment, search_path and planned new tables.');
     if (snapshot.tables.some(t => t.kind === 'p'))
@@ -265,8 +274,8 @@ export async function draft(input) {
     if (snapshot.role === 'replica') notices.push('Standby replay age is not transport or apply lag; it can rise when the primary is idle. This snapshot cannot establish primary activity or replica health.');
   }
   const unanswered = Object.entries(contextFields).filter(([key]) => !context[key]).map(([, label]) => label);
-  return { title, sql, snapshot, context, gates, notices, unanswered, sqlFingerprint: analysis.sqlFingerprint,
-    uncovered: analysis.uncovered, control: analysis.control };
+  return refreshSnapshotNotices({ title, sql, snapshot, context, gates, notices, unanswered, sqlFingerprint: analysis.sqlFingerprint,
+    uncovered: analysis.uncovered, control: analysis.control });
 }
 
 const literalText = text => String(text).split(/\r\n|[\n\r\u000b\u000c\u0085\u2028\u2029]/u).map(line => '    ' + line).join('\n');

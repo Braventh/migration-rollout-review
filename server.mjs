@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
-import { draft, inspect, InputError, markdown } from './review.mjs';
+import { draft, inspect, InputError, markdown, refreshSnapshotNotices } from './review.mjs';
 
 const assets = new Map([
   ['/', ['text/html; charset=utf-8', readFileSync(new URL('./public/index.html', import.meta.url))]],
@@ -90,6 +90,7 @@ export function makeServer(filename) {
         const record = get.get(match[1]);
         if (!record) throw new RequestError(404, 'Review not found.');
         const payload = JSON.parse(record.payload);
+        payload.plan = refreshSnapshotNotices(payload.plan);
         if (match[2]) return reply(res, 200, 'text/markdown; charset=utf-8', markdown(payload.plan),
           { 'Content-Disposition': 'attachment; filename="rollout-review.md"' });
         payload.plan.sqlFingerprint ??= (await inspect(payload.plan.sql)).sqlFingerprint;

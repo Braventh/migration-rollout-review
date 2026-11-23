@@ -74,3 +74,27 @@ test('HTTP boundary rejects hostile origins, non-JSON, invalid values and oversi
   assert.equal(status, 413);
   assert.deepEqual(await (await fetch(url + '/api/reviews')).json(), []);
 });
+
+test('saved review and Markdown refresh snapshot age without another save', async t => {
+  const { server, url } = await start(':memory:');
+  t.after(() => stop(server));
+  const captured = Date.parse('2026-07-12T12:00:00Z');
+  let now = captured;
+  t.mock.method(Date, 'now', () => now);
+  const snapshot = JSON.stringify({
+    version: 1, captured_at: new Date(captured).toISOString(), role: 'primary',
+    last_replay_age_seconds: null, visible_long_transactions: 0, tables: []
+  });
+  const created = await post(url + '/api/reviews', { title: 'Age check', sql: 'SELECT 1;', snapshot });
+  assert.equal(created.status, 201);
+  const { id, updatedAt, plan } = await created.json();
+  assert.doesNotMatch(plan.notices.join(' '), /timestamp is stale/);
+  now = captured + 25 * 60 * 60 * 1000;
+  const path = url + '/api/reviews/' + id;
+  const opened = await (await fetch(path)).json();
+  assert.equal(opened.updatedAt, updatedAt);
+  assert.match(opened.plan.notices.join(' '), /timestamp is stale/);
+  assert.match(await (await fetch(path + '/markdown')).text(), /timestamp is stale/);
+  now = captured;
+  assert.doesNotMatch(await (await fetch(path + '/markdown')).text(), /timestamp is stale/);
+});
