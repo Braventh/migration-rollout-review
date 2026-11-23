@@ -13,6 +13,8 @@ npm start
 
 Open **http://127.0.0.1:3000**. No Postgres server, credentials, paid service, account, or browser add-on is needed to try the example. Reviews persist in `data/reviews.sqlite` relative to where you start the app. Set `PORT` for a different local port or `REVIEW_DB` for a different database file. Stop the app before copying or deleting the database. The server listens on loopback only. The private Devin App uses its authenticating proxy and a shared organization library; do not expose this server directly on a network.
 
+For the existing private Devin App, start with `REVIEW_WORKSPACE=org REVIEW_ALLOWED_ORIGINS=https://rollout-desk--bbcnjtf0.preview.devinapps.com npm start` in addition to its configured port and database path. `REVIEW_ALLOWED_ORIGINS` is a comma-separated list of exact origins (scheme, host, and port if needed; no path or wildcard). Leave it unset for local use.
+
 ## Try a review
 
 1. Select **Load example** for a synthetic invoice migration, or paste your own title and PostgreSQL SQL.

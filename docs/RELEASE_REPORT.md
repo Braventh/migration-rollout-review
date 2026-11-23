@@ -53,6 +53,9 @@ Put Node.js 24 or newer on PATH, then run `npm ci && npm start` and open **http:
 | `PORT` | `3000`; loopback listening port. |
 | `REVIEW_DB` | `data/reviews.sqlite` relative to the working directory; persistent file. Tests can use `:memory:`. |
 | `REVIEW_WORKSPACE` | Local by default; `org` changes the disclosure for the already authorized private hosted app. It does not enable authentication. |
+| `REVIEW_ALLOWED_ORIGINS` | Unset for local use; comma-separated exact origins for trusted hosting proxies. |
+
+For the existing private Devin App, retain its configured port and database path and start it with `REVIEW_WORKSPACE=org REVIEW_ALLOWED_ORIGINS=https://rollout-desk--bbcnjtf0.preview.devinapps.com npm start`.
 
 To preserve existing reviews, stop the local process before copying the SQLite file. Never expose the loopback server directly to a network.
 

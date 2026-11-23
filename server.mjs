@@ -52,7 +52,8 @@ async function readBody(req) {
   return body;
 }
 
-export function makeServer(filename, { sharedWorkspace = false } = {}) {
+export function makeServer(filename, { sharedWorkspace = false, allowedOrigins = '' } = {}) {
+  const trustedOrigins = new Set(allowedOrigins.split(',').map(origin => origin.trim()).filter(Boolean));
   if (filename !== ':memory:') mkdirSync(dirname(resolve(filename)), { recursive: true, mode: 0o700 });
   const db = new DatabaseSync(filename, { timeout: 250 });
   db.exec('CREATE TABLE IF NOT EXISTS reviews (id TEXT PRIMARY KEY, title TEXT NOT NULL, updated_at TEXT NOT NULL, payload TEXT NOT NULL)');
@@ -72,9 +73,12 @@ export function makeServer(filename, { sharedWorkspace = false } = {}) {
       const allowed = ['localhost:' + port, '127.0.0.1:' + port];
       const host = req.headers.host;
       if (!allowed.includes(host)) throw new RequestError(403, 'Only the local app URL is allowed.');
-      if ((req.headers.origin && req.headers.origin !== 'http://' + host) || req.headers['sec-fetch-site'] === 'cross-site')
-        throw new RequestError(403, 'Cross-origin requests are not allowed.');
       const [path, query] = req.url.split('?', 2);
+      const origin = req.headers.origin;
+      const foreignOrigin = origin !== undefined && origin !== 'http://' + host && !trustedOrigins.has(origin);
+      const crossSiteRestricted = req.headers['sec-fetch-site'] === 'cross-site' &&
+        (req.method !== 'GET' || path.startsWith('/api/'));
+      if (foreignOrigin || crossSiteRestricted) throw new RequestError(403, 'Cross-origin requests are not allowed.');
       const params = new URLSearchParams(query);
       if (req.method === 'GET' && path === '/') return reply(res, 200, pageType, homePage);
       const asset = assets.get(path);
@@ -154,7 +158,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   process.umask(0o077);
   const port = Number(process.env.PORT ?? 3000);
   const server = makeServer(process.env.REVIEW_DB ?? 'data/reviews.sqlite', {
-    sharedWorkspace: process.env.REVIEW_WORKSPACE === 'org'
+    sharedWorkspace: process.env.REVIEW_WORKSPACE === 'org',
+    allowedOrigins: process.env.REVIEW_ALLOWED_ORIGINS
   });
   server.listen(port, '127.0.0.1', () => console.log('Rollout Desk: http://127.0.0.1:' + server.address().port));
 }
