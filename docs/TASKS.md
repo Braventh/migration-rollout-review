@@ -8,4 +8,6 @@
 - [x] Self-audit: unsupported SQL, stale/inconsistent snapshots, hostile text and origins, and bounded inputs.
 - [x] Local release instructions, changelog and limitations.
 - [x] Publish source to the approved GitHub repository.
+- [x] Run five independent audits and merge release fixes in [PR #2](https://github.com/Braventh/migration-rollout-review/pull/2).
+- [x] Verify the release candidate locally, refresh screenshots, and write the [mission completion report](RELEASE_REPORT.md).
 - [ ] Run a paired review pilot against the completed checklist plus existing tools.

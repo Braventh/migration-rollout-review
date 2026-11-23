@@ -36,3 +36,4 @@ Set `CHROMIUM_EXECUTABLE` to use an existing compatible Chromium/Chrome binary. 
 - [Capture query and context](docs/screenshots/02-context.png)
 - [Saved review and export](docs/screenshots/03-saved-review.png)
 - [Product](docs/PRD.md) · [Design](docs/UX.md) · [Architecture](docs/ARCHITECTURE.md) · [Test results and limits](docs/TEST_REPORT.md)
+- [Mission completion and release report](docs/RELEASE_REPORT.md)
