@@ -29,9 +29,14 @@ const fromNames = xs => xs.length ? { schema: xs.at(-2) ?? 'public', table: xs.a
 const same = (a, b) => a && b && keyOf(a) === keyOf(b);
 const isLiteral = node => Boolean(node?.A_Const);
 
-function topLevelSources(select) {
-  const node = select?.SelectStmt;
-  return (node?.fromClause ?? []).map(x => fromRange(x.RangeVar)).filter(Boolean);
+function topLevelSources(insert) {
+  const select = insert.selectStmt?.SelectStmt;
+  const cteNames = new Set([insert.withClause, select?.withClause]
+    .flatMap(clause => clause?.ctes ?? [])
+    .map(cte => cte.CommonTableExpr.ctename));
+  const references = (select?.fromClause ?? []).map(x => x.RangeVar).filter(Boolean);
+  const sources = references.filter(r => r.schemaname || !cteNames.has(r.relname)).map(fromRange);
+  return { sources, hasReferences: references.length > 0 };
 }
 
 export async function inspect(input) {
@@ -117,10 +122,10 @@ export async function inspect(input) {
         unknown('Review new table constraints and dependencies separately.');
         break;
       case 'InsertStmt': {
-        const sources = topLevelSources(node.selectStmt);
+        const { sources, hasReferences } = topLevelSources(node);
         sources.forEach(add);
-        if (sources.length) {
-          flag('backfill', index, r, '', 'INSERT … SELECT copies data; confirm intended scope.');
+        if (hasReferences) {
+          flag('backfill', index, r, '', 'INSERT … SELECT moves query results into the target; confirm the source and intended scope.');
           copies.push({ target: r, sources, index });
         } else unknown('INSERT effects are outside the rules.');
         if (node.withClause || node.selectStmt?.SelectStmt?.withClause) unknown('Nested CTE effects are not analyzed.');

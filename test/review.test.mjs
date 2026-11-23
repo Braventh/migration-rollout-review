@@ -44,6 +44,20 @@ test('a plain index build in a transaction does not get the concurrent runner wa
   assert.match(result.findings[0].note, /CONCURRENTLY is not requested/);
   assert.doesNotMatch(result.notices.join(' '), /concurrent index and explicit transaction/);
 });
+
+test('snapshot skips unqualified CTE references but keeps schema-qualified relations', async () => {
+  const cte = 'WITH pending AS (SELECT id FROM billing.invoices)';
+  const insert = 'INSERT INTO billing.history';
+  for (const prefix of [cte + ' ' + insert, insert + ' ' + cte]) {
+    const result = await inspect(prefix + ' SELECT id FROM pending, archive.pending;');
+    assert.deepEqual(result.targets, [{ schema: 'billing', table: 'history' }, { schema: 'archive', table: 'pending' }]);
+    assert.match(result.uncovered.join(' '), /CTE effects are not analyzed/);
+    assert.equal(result.findings[0].kind, 'backfill');
+  }
+  const split = await inspect('CREATE TABLE billing.history(id int); ' + cte + ' ' + insert +
+    ' SELECT id FROM pending; ALTER TABLE public.pending DROP COLUMN id;');
+  assert.ok(split.findings.every(finding => finding.kind !== 'split'));
+});
 test('capture scopes identifiers safely and limits repeated targets', async () => {
   const result = await inspect("ALTER TABLE public.\"a'b\" DROP COLUMN t;");
   assert.equal(result.notices.length, 0);
