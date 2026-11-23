@@ -5,3 +5,5 @@
 The [mission completion report](RELEASE_REPORT.md) indexes the delivered product and records which historical requirements cannot be independently verified or were not met. The next product milestone is a real-team comparison with a completed checklist and existing tools, not a public launch.
 
 The [user trial package](trial/README.md) is prepared but not run; no external user has validated Rollout Desk.
+
+The [Mission 7 final recommendation](FINAL-DECISION.md) is **C: keep a small open-source utility, subject to the owner's license choice; do not pursue commercialization**. Keep the tool a human review aid, not a rollout gate. License selection and outreach approval remain with the owner; no feature expansion or launch is recommended on current evidence.

@@ -13,3 +13,4 @@
 - Separate rewrites from nullability and indexes: serial/identity, stored generated columns and candidate volatile defaults can add material work. Use a lock acquisition budget and retry rehearsal, not a duration guess or safety guarantee.
 - Separate constraint enforcement, historical validation, and removal. Standalone validation lock guidance is not a promise for multi-action ALTERs or runner-batched DDL. Only infer new-table index framing conservatively and leave conditional creates on the existing-target path.
 - Keep the incumbent gate ID sequence for saved decisions. Add rewrite and constraint IDs in a separate ordinal space.
+- [Mission 7 recommends C](FINAL-DECISION.md): retain the local worksheet as a small utility and do not commercialize or expand scope on current evidence. Open-source distribution is pending the owner's license choice; external trial outreach is pending separate owner approval.
