@@ -37,5 +37,6 @@ Set `CHROMIUM_EXECUTABLE` to use an existing compatible Chromium/Chrome binary. 
 - [Migration worksheet](docs/screenshots/01-migration.png)
 - [Capture query and context](docs/screenshots/02-context.png)
 - [Saved review and export](docs/screenshots/03-saved-review.png)
+- [User trial package](docs/trial/README.md) — prepared, not run; no external user validation yet.
 - [Product](docs/PRD.md) · [Design](docs/UX.md) · [Architecture](docs/ARCHITECTURE.md) · [Test results and limits](docs/TEST_REPORT.md)
 - [Mission completion and release report](docs/RELEASE_REPORT.md)
