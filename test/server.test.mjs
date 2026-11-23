@@ -173,6 +173,24 @@ test('HTTP boundary rejects hostile origins, non-JSON, invalid values and oversi
   assert.deepEqual(await (await fetch(url + '/api/reviews')).json(), []);
 });
 
+test('hosted origin permits navigation and same-origin API use without opening cross-site API access', async t => {
+  const origin = 'https://rollout-desk--bbcnjtf0.preview.devinapps.com';
+  const secondOrigin = 'https://second.preview.devinapps.com';
+  const { server, url } = await start(':memory:', { allowedOrigins: ' ' + origin + ', ' + secondOrigin });
+  t.after(() => stop(server));
+  const crossSite = { 'Sec-Fetch-Site': 'cross-site' };
+  assert.equal(await rawStatus(url + '/', { headers: crossSite }), 200);
+  assert.equal(await rawStatus(url + '/app.js', { headers: crossSite }), 200);
+  assert.equal(await rawStatus(url + '/api/reviews', { headers: { Origin: secondOrigin } }), 200);
+  assert.equal(await rawStatus(url + '/api/reviews', { headers: { Origin: origin + '.example.org' } }), 403);
+  assert.equal(await rawStatus(url + '/api/reviews', { headers: { Origin: origin, ...crossSite } }), 403);
+  assert.equal(await rawStatus(url + '/', { headers: { Host: 'elsewhere.test:123', Origin: origin } }), 403);
+  const body = JSON.stringify({ title: 'Hosted review', sql: 'SELECT 1;' });
+  const headers = { Origin: origin, 'Content-Type': 'application/json' };
+  assert.equal(await rawStatus(url + '/api/reviews', { method: 'POST', headers: { ...headers, ...crossSite } }, body), 403);
+  assert.equal(await rawStatus(url + '/api/reviews', { method: 'POST', headers: { ...headers, 'Sec-Fetch-Site': 'same-origin' } }, body), 201);
+});
+
 test('saved review and Markdown refresh snapshot age without another save', async t => {
   const { server, url } = await start(':memory:');
   t.after(() => stop(server));
