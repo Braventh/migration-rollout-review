@@ -31,7 +31,9 @@
         <label for="title">Review title</label>
         <input id="title" maxlength="120" placeholder="e.g. Enforce invoice region">
         <label for="sql">PostgreSQL migration</label>
-        <textarea id="sql" class="editor" rows="7" maxlength="48000" spellcheck="false" placeholder="-- Paste SQL here"></textarea>
+        <textarea id="sql" class="editor" rows="7" spellcheck="false" aria-describedby="sql-limit sql-size-error" placeholder="-- Paste SQL here"></textarea>
+        <p id="sql-limit" class="helper">Limit: 48,000 characters per review.</p>
+        <p id="sql-size-error" class="error" role="alert" hidden></p>
         <div class="actions"><button id="inspect" type="button">Inspect SQL <span aria-hidden="true">→</span></button><button id="example" class="secondary" type="button">Load example</button></div>
       </section>
       <section id="context">
@@ -46,7 +48,9 @@
           </details>
         </div>
         <label for="snapshot">Database snapshot <small>OPTIONAL</small></label>
-        <textarea id="snapshot" class="mono" rows="3" maxlength="18000" spellcheck="false" placeholder="Paste the single JSON result from the capture query"></textarea>
+        <textarea id="snapshot" class="mono" rows="3" spellcheck="false" aria-describedby="snapshot-limit snapshot-size-error" placeholder="Paste the single JSON result from the capture query"></textarea>
+        <p id="snapshot-limit" class="helper">Limit: 18,000 characters per snapshot.</p>
+        <p id="snapshot-size-error" class="error" role="alert" hidden></p>
         <div class="context-grid">
           <div><label for="actors">Actors, old versions and jobs</label><textarea id="actors" rows="2" maxlength="2000" placeholder="What still reads or writes the old shape?"></textarea></div>
           <div><label for="deploy">Sequence, runner and feature flags</label><textarea id="deploy" rows="2" maxlength="2000" placeholder="What runs first? What turns on traffic?"></textarea></div>

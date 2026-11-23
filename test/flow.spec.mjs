@@ -52,3 +52,27 @@ test('invalid snapshot retains inputs, labels missing evidence, and wraps on mob
   await expect(page.getByRole('button', { name: '<em>Literal title</em>' })).toBeVisible();
   await expect(page.locator('.library em')).toHaveCount(0);
 });
+
+test('oversized SQL and snapshots stay intact with explicit size errors', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Load example' }).click();
+  const sql = page.getByLabel('PostgreSQL migration');
+  const original = await sql.inputValue();
+  const longSql = 'x'.repeat(48_001);
+  await sql.clear();
+  await sql.focus();
+  await page.keyboard.insertText(longSql);
+  await expect(sql).toHaveValue(longSql);
+  await page.getByRole('button', { name: 'Inspect SQL' }).click();
+  await expect(page.getByRole('alert')).toHaveText(/Migration SQL exceeds 48,000 characters/);
+  await sql.fill(original);
+  const snapshot = page.getByLabel('Database snapshot');
+  const longSnapshot = 'x'.repeat(18_001);
+  await snapshot.clear();
+  await snapshot.focus();
+  await page.keyboard.insertText(longSnapshot);
+  await expect(snapshot).toHaveValue(longSnapshot);
+  await page.getByRole('button', { name: 'Generate review' }).click();
+  await expect(page.getByRole('alert')).toHaveText(/Database snapshot exceeds 18,000 characters/);
+  await expect(page.getByLabel('Team decision')).toHaveCount(0);
+});

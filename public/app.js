@@ -1,6 +1,7 @@
 const el = id => document.getElementById(id);
 const fields = ['actors', 'deploy', 'recovery', 'evidence'];
 const inputs = ['title', 'sql', 'snapshot', ...fields];
+const fieldLimits = { sql: [48000, 'Migration SQL'], snapshot: [18000, 'Database snapshot'] };
 const state = { id: null, plan: null, fingerprint: null, busy: false, library: [] };
 const controls = ['new', 'example', 'inspect', 'generate', 'save', 'copy'];
 
@@ -13,6 +14,19 @@ function node(tag, content, className) {
 function notice(id, message = '') {
   el(id).textContent = message;
   el(id).hidden = !message;
+}
+function validateLimit(id) {
+  const [limit, label] = fieldLimits[id];
+  const valid = el(id).value.length <= limit;
+  if (valid) el(id).removeAttribute('aria-invalid');
+  else el(id).setAttribute('aria-invalid', 'true');
+  notice(id + '-size-error', valid ? '' : label + ' exceeds ' + limit.toLocaleString('en-US') + ' characters. Shorten it to continue.');
+  return valid;
+}
+function requireLimits(...ids) {
+  const invalid = ids.filter(id => !validateLimit(id));
+  if (invalid.length) el(invalid[0]).focus();
+  return !invalid.length;
 }
 async function api(path, input) {
   const response = await fetch('/api/' + path, input === undefined ? {} : {
@@ -66,6 +80,7 @@ function clearInspection() {
 }
 function fill(data = { context: {} }) {
   for (const id of inputs) el(id).value = (fields.includes(id) ? data.context[id] : data[id]) ?? '';
+  for (const id of Object.keys(fieldLimits)) validateLimit(id);
   state.id = null;
   state.plan = null;
   state.fingerprint = null;
@@ -194,7 +209,7 @@ el('example').addEventListener('click', () => {
   notice('error');
   notice('status', 'Synthetic example loaded, including a sample snapshot. Inspect or generate to try it.');
 });
-el('inspect').addEventListener('click', () => run('Inspecting SQL…', async () => {
+el('inspect').addEventListener('click', () => requireLimits('sql') && run('Inspecting SQL…', async () => {
   const a = await api('inspect', { sql: el('sql').value });
   el('capture').hidden = false;
   el('inspection').textContent = a.targets.length ? 'Scoped to ' + a.targets.map(r => r.schema + '.' + r.table).join(', ') + '.'
@@ -209,7 +224,7 @@ el('copy').addEventListener('click', () => run('Copying capture SQL…', async (
   await navigator.clipboard.writeText(el('query').textContent);
   notice('status', 'Capture SQL copied.');
 }));
-el('generate').addEventListener('click', () => run('Generating review…', async () => {
+el('generate').addEventListener('click', () => requireLimits('sql', 'snapshot') && run('Generating review…', async () => {
   const sameSql = state.plan?.sql === el('sql').value.trim();
   showPlan(await api('draft', { ...input(), decisions: sameSql ? decisions() : {} }));
   notice('status', 'Draft ready. Review the evidence and record your decisions.');
@@ -225,6 +240,7 @@ el('save').addEventListener('click', () => run('Saving review…', async () => {
   notice('status', 'Review saved locally. Markdown is ready to download.');
 }));
 for (const id of inputs) el(id).addEventListener('input', () => {
+  if (fieldLimits[id]) validateLimit(id);
   if (id === 'sql') clearInspection();
   el('download').hidden = true;
   if (state.plan) notice('status', 'Inputs changed. Generate the review again before saving.');
