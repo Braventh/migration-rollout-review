@@ -1,6 +1,8 @@
 # Changelog
 
-## Audit follow-up (pending hosted rollout)
+## 0.1.0 · Audit follow-up
+
+Merged in [PR #2](https://github.com/Braventh/migration-rollout-review/pull/2). The [mission handoff](RELEASE_REPORT.md) records the updated evidence and limitations.
 
 - Enforce save and export revisions, strict snapshot calendar and JSON field validation, and actionable SQLite contention errors.
 - Improve capture under explicit search paths, guard destructive SQL, flag opaque bodies, and distinguish transaction, partition and required-column risks.
