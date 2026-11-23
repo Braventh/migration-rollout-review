@@ -1,0 +1,14 @@
+{
+  "name": "migration-rollout-review",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": { "pgsql-parser": "18.4.4" },
+  "devDependencies": { "@playwright/test": "1.65.1" }
+}

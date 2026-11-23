@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rollout Desk · PostgreSQL migration review</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="masthead"><div class="mast-inner"><div class="brand"><span class="mark" aria-hidden="true">↳</span> Rollout Desk</div><div class="local"><span></span> LOCAL WORKSPACE</div></div></header>
+  <div class="workspace">
+    <aside class="sidebar" aria-label="Review library">
+      <div class="eyebrow">WORKSPACE</div>
+      <h2>Review library</h2>
+      <button id="new" class="secondary" type="button">+ New review</button>
+      <div id="library" class="library" aria-live="polite">Loading reviews…</div>
+      <p class="privacy">Stored on this machine.<br>No database connections.</p>
+    </aside>
+    <main>
+      <div class="intro">
+        <div class="eyebrow">POSTGRESQL / RELEASE ENGINEERING</div>
+        <h1>Migration rollout review</h1>
+        <p>Gather database and release context, then turn it into a plan your team can review before deploy.</p>
+        <nav aria-label="Worksheet steps"><a href="#migration">01 Migration</a><span aria-hidden="true">→</span><a href="#context">02 Context</a><span aria-hidden="true">→</span><a href="#review">03 Review</a></nav>
+      </div>
+      <div id="status" class="status" role="status" hidden></div>
+      <div id="error" class="error" role="alert" hidden></div>
+      <section id="migration">
+        <div class="section-head"><div class="step">01</div><div><h2>Migration SQL</h2><p>Start with the migration as it would run. Nothing here executes it.</p></div></div>
+        <label for="title">Review title</label>
+        <input id="title" maxlength="120" placeholder="e.g. Enforce invoice region">
+        <label for="sql">PostgreSQL migration</label>
+        <textarea id="sql" class="editor" rows="7" maxlength="48000" spellcheck="false" placeholder="-- Paste SQL here"></textarea>
+        <div class="actions"><button id="inspect" type="button">Inspect SQL <span aria-hidden="true">→</span></button><button id="example" class="secondary" type="button">Load example</button></div>
+      </section>
+      <section id="context">
+        <div class="section-head"><div class="step">02</div><div><h2>Gather context</h2><p>Database signals are a sample. Release readiness still comes from your team.</p></div></div>
+        <div id="inspection" class="empty">Inspect your SQL to generate a scoped database capture query.</div>
+        <div id="capture" hidden>
+          <details id="query-details">
+            <summary>Read-only capture query</summary>
+            <p class="helper">Copy and run in a fresh PostgreSQL session using your read-only role (approved primary or replica). In psql use <code>-Atq</code> to get only the JSON result. It reads catalog and activity counts, not application rows.</p>
+            <button id="copy" class="secondary" type="button">Copy capture SQL</button>
+            <pre id="query" tabindex="0" aria-label="Read-only SQL"></pre>
+          </details>
+        </div>
+        <label for="snapshot">Database snapshot <small>OPTIONAL</small></label>
+        <textarea id="snapshot" class="mono" rows="3" maxlength="18000" spellcheck="false" placeholder="Paste the single JSON result from the capture query"></textarea>
+        <div class="context-grid">
+          <div><label for="actors">Actors, old versions and jobs</label><textarea id="actors" rows="2" maxlength="2000" placeholder="What still reads or writes the old shape?"></textarea></div>
+          <div><label for="deploy">Sequence, runner and feature flags</label><textarea id="deploy" rows="2" maxlength="2000" placeholder="What runs first? What turns on traffic?"></textarea></div>
+          <div><label for="recovery">Recovery builds and retirement window</label><textarea id="recovery" rows="2" maxlength="2000" placeholder="What versions can return, and for how long?"></textarea></div>
+          <div><label for="evidence">Owner, evidence and pause thresholds</label><textarea id="evidence" rows="2" maxlength="2000" placeholder="Who decides? What should block the rollout?"></textarea></div>
+        </div>
+        <div class="actions"><button id="generate" type="button">Generate review <span aria-hidden="true">→</span></button></div>
+      </section>
+      <section id="review">
+        <div class="section-head"><div class="step">03</div><div><h2>Review the rollout</h2><p>Draft for human review, not deployment approval.</p></div></div>
+        <div id="plan" class="empty">No draft yet. Add your context and generate a review to see the proposed gates.</div>
+        <div id="save-actions" class="actions" hidden><button id="save" type="button">Save review</button><a id="download" class="secondary button" download hidden>Download Markdown</a></div>
+      </section>
+      <footer>ROLLOUT DESK <span>·</span> Guidance, not a deploy gate</footer>
+    </main>
+  </div>
+</body>
+</html>
