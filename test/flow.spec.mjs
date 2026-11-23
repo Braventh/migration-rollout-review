@@ -80,6 +80,7 @@ test('oversized SQL and snapshots stay intact with explicit size errors', async 
 test('SQL comments preserve saved decisions, but changed statements clear them', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Load example' }).click();
+  await page.getByLabel('Review title').fill('Comment-only revision');
   const generate = page.getByRole('button', { name: 'Generate review' });
   const decision = page.getByLabel('Team decision');
   await generate.click();
@@ -87,7 +88,8 @@ test('SQL comments preserve saved decisions, but changed statements clear them',
   await page.getByRole('button', { name: 'Save review' }).click();
   await expect(page.getByRole('link', { name: 'Download Markdown' })).toBeVisible();
   await page.reload();
-  await page.getByRole('button', { name: 'Require billing region on invoices' }).click();
+  await page.getByRole('button', { name: 'Comment-only revision' }).click();
+  await expect(decision).toHaveValue('Billing owns the decision.');
   const sql = page.getByLabel('PostgreSQL migration');
   const changed = '-- Reviewed by Billing\n' + (await sql.inputValue()).replace('ADD COLUMN', 'ADD /* note */ COLUMN');
   await sql.fill(changed);
