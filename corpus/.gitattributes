@@ -1,0 +1,2 @@
+files/** -text -whitespace
+THIRD_PARTY/** -text -whitespace

@@ -34,6 +34,7 @@ npm run test:e2e
 
 Set `CHROMIUM_EXECUTABLE` to use an existing compatible Chromium/Chrome binary. Set `CAPTURE_SCREENSHOTS=1` when running Playwright to regenerate the screenshots.
 
+- [Real-world PostgreSQL migration corpus](corpus/README.md)
 - [Migration worksheet](docs/screenshots/01-migration.png)
 - [Capture query and context](docs/screenshots/02-context.png)
 - [Saved review and export](docs/screenshots/03-saved-review.png)
