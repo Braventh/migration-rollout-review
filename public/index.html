@@ -7,15 +7,19 @@
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
-<body>
-  <header class="masthead"><div class="mast-inner"><div class="brand"><span class="mark" aria-hidden="true">↳</span> Rollout Desk</div><div class="local"><span></span> LOCAL WORKSPACE</div></div></header>
+<body data-workspace="local">
+  <header class="masthead"><div class="mast-inner"><div class="brand"><span class="mark" aria-hidden="true">↳</span> Rollout Desk</div><div class="local"><span></span> <strong class="local-only">LOCAL WORKSPACE</strong><strong class="org-only">SHARED WORKSPACE</strong></div></div></header>
   <div class="workspace">
     <aside class="sidebar" aria-label="Review library">
       <div class="eyebrow">WORKSPACE</div>
       <h2>Review library</h2>
       <button id="new" class="secondary" type="button">+ New review</button>
-      <div id="library" class="library" aria-live="polite">Loading reviews…</div>
-      <p class="privacy">Stored on this machine.<br>No database connections.</p>
+      <button id="toggle-library" class="secondary" type="button" aria-expanded="false" aria-controls="library-panel">Saved reviews</button>
+      <div id="library-panel">
+        <div id="library" class="library" aria-live="polite">Loading reviews…</div>
+        <button id="more-reviews" class="secondary" type="button" hidden>Load older reviews</button>
+      </div>
+      <p class="privacy"><span class="local-only">Stored on this machine.</span><span class="org-only">Shared review library.</span><br>No database connections.</p>
     </aside>
     <main>
       <div class="intro">
@@ -60,11 +64,14 @@
         <div class="actions"><button id="generate" type="button">Generate review <span aria-hidden="true">→</span></button></div>
       </section>
       <section id="review">
-        <div class="section-head"><div class="step">03</div><div><h2>Review the rollout</h2><p>Draft for human review, not deployment approval.</p></div></div>
+        <div class="section-head"><div class="step">03</div><div><h2 id="review-heading" tabindex="-1">Review the rollout</h2><p>Draft for human review, not deployment approval.</p></div></div>
         <div id="plan" class="empty">No draft yet. Add your context and generate a review to see the proposed gates.</div>
         <div id="save-actions" class="actions" hidden><button id="save" type="button">Save review</button><a id="download" class="secondary button" download hidden>Download Markdown</a></div>
+        <p id="request-size" class="helper" role="status" hidden></p>
       </section>
-      <footer>ROLLOUT DESK <span>·</span> Guidance, not a deploy gate</footer>
+      <footer>ROLLOUT DESK <span>·</span> Guidance, not a deploy gate
+        <p class="org-only">Shared with everyone in your org who can open this app.</p>
+      </footer>
     </main>
   </div>
 </body>
