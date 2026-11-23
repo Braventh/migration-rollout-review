@@ -1,0 +1,117 @@
+# Case ledger: all 60 corpus inputs
+
+Companion to the [accuracy report](CORPUS_ACCURACY_REPORT.md). Links point to the exact local inputs; the [manifest](../corpus/manifest.json) maps IDs to pinned upstream URLs and SHA-256. Rows use one-based top-level statement numbers. Statement and entry counts are from the **raw** run; rendered/Up checks appear only in the judgment.
+
+**Labels (non-exclusive):** TP = correct operation detection (not a safety claim); FP-S = false signal for forward scope; FN = knowable operation or semantic risk lacks a specific gate, even if generic manual review is present; CU = appropriate manual review for some portion; IU = an inaccurate or redundant uncovered entry; PF = raw parse failure; G = guidance mismatch or omission; H = potentially high-impact underexplained risk; ? = severity, execution or impact depends on facts not supplied. A row can correctly defer a body to manual review and still name a material risk the generated plan does not explain.
+
+**Raw columns:** `S` statements, `F` findings by kind and statement, `U` uncovered entries, `N` inspect notices, `T` capture targets. `N = 1` means the only notice was to verify the `public` assumption. All successful drafts also had no-snapshot and unanswered-context warnings. A dash in the raw column for PF is not a zero-risk result.
+
+## auth
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [20210909172000_create_identities_table.up](../corpus/files/auth/20210909172000_create_identities_table.up.sql) | — (parse failure) | **PF, CU, ?.** Creates identities with cascading users FK and a COMMENT. Top-level namespace template rejects raw SQL near `{`. Rendered: table and COMMENT fall into manual review; referenced `users` is not a capture target. New-table FK is not an existing-child validation scan. |
+| [20221125140132_backfill_email_identity.up](../corpus/files/auth/20221125140132_backfill_email_identity.up.sql) | 1 / none / 1 / 0 / 0 | **CU, H, ?.** DO body inserts email identities from existing users and excludes existing matches. Raw and rendered: opaque S1 and zero targets. Inspect restart/concurrency and verify reconciliation manually; write volume is unknown. |
+| [20230116124310_alter_phone_type.up](../corpus/files/auth/20230116124310_alter_phone_type.up.sql) | 1 / none / 1 / 0 / 0 | **CU, ?.** DO body converts two `users` phone columns to text and catches dependency/engine errors. Raw and rendered: opaque S1 and zero targets. Distinguish attempted schema change from the exception path; actual catalog/dependencies unknown. |
+| [20240214120130_add_is_anonymous_column.up](../corpus/files/auth/20240214120130_add_is_anonymous_column.up.sql) | 1 / none / 1 / 0 / 0 | **CU, H, ?.** DO body adds required boolean with `DEFAULT false` and an ordinary index on `users`. Opaque even after rendering; no gate/target for the index on the existing table. Conditional if the column/index already exists. |
+| [20240729123726_add_mfa_phone_config.up](../corpus/files/auth/20240729123726_add_mfa_phone_config.up.sql) | — (parse failure) | **PF, TP, CU, H, ?.** Top-level template rejects near `{`. Rendered: S2 and S4 correctly identify the unique constraint and unique index; S1 enum addition remains opaque. Review new-value readiness and uniqueness against existing data. |
+| [20250904133000_add_oauth_client_id_to_session.up](../corpus/files/auth/20250904133000_add_oauth_client_id_to_session.up.sql) | — (parse failure) | **PF, TP, FN, G, H, ?.** Top-level template rejects near `{`. Rendered: S2 NOT VALID FK includes both relations and correctly notes deferred historical validation; S3 goes on to validate in the same file, with no validation gate. S4 index detected. |
+
+## graphql-engine
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [0_to_1](../corpus/files/graphql-engine/0_to_1.sql) | 6 / rename @3; backfill @5; drop @6 / 2 / 0 / 2 | **TP, CU, G, H, ?.** S3/5/6 catch the rename, conditional update and old-column drop; default changes are manual. There is no linked boolean-to-timestamp swap/recovery plan; check consumers and the effect of replacing true with `NOW()`. |
+| [1_to_2](../corpus/files/graphql-engine/1_to_2.sql) | 3 / drop @1,2; index @3 / 0 / 0 / 1 | **TP, G, ?.** Two index drops and an ordinary partial replacement index on `event_log` detected. Check lock and query-plan sequence for the `fetchEvents` path; the drop gate is generic. |
+| [2_to_3](../corpus/files/graphql-engine/2_to_3.sql) | 3 / none / 2 / 0 / 2 | **CU, FN, ?.** New cleanup table and nullable column are appropriately not high-risk gates. Dropping the existing event-invocation FK is recognizable, but only `AT_DropConstraint` appears; check lost enforcement/cascade against the existing schema. |
+| [3_to_4](../corpus/files/graphql-engine/3_to_4.sql) | 1 / none / 1 / 0 / 0 | **CU, ?.** Defines a replacement enqueue function; the insert happens when called, not at definition time. Opaque is correct; test payload/runtime branches and callers rather than labelling it an upgrade backfill. |
+| [4_to_5](../corpus/files/graphql-engine/4_to_5.sql) | 1 / none / 1 / 0 / 1 | **FN, H, ?.** `REPLICA IDENTITY FULL` is explicit, but only `AT_ReplicaIdentity` is shown. Check publication/subscriber impact and WAL/row identity tradeoffs if logical replication is enabled. |
+
+## openfga
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [001_initialize_schema](../corpus/files/openfga/001_initialize_schema.sql) | 13 / index @2,3,4; drop @9,10,11,12,13 / 5 / 1 / 5 | **TP, FP-S, G, CU.** Up creates five tables, then three indexes on newly created `tuple`. All five raw destructive table gates belong to Down. New-table manual review is reasonable; live-table index pressure is poorly framed for bootstrap. |
+| [002_add_authorization_model_version](../corpus/files/openfga/002_add_authorization_model_version.sql) | 2 / required @1; drop @2 / 1 / 1 / 1 | **TP, FP-S, IU, G.** Up adds required `schema_version` with literal `DEFAULT '1.0'`; the no-rewrite note for PostgreSQL 11+ is correct. The draft's stop-if-writers-omit rule ignores that default and the manual warning repeats it. Column drop is Down. |
+| [003_add_reverse_lookup_index](../corpus/files/openfga/003_add_reverse_lookup_index.sql) | 2 / index @1; drop @2 / 0 / 1 / 1 | **TP, FP-S, ?.** Up ordinary index build on existing `tuple` deserves write-blocking review. Raw `DROP INDEX` gate is Down only. |
+| [004_add_authorization_model_serialized_protobuf](../corpus/files/openfga/004_add_authorization_model_serialized_protobuf.sql) | 2 / drop @2 / 0 / 1 / 1 | **FP-S.** Up only adds nullable bytea; Up-only analysis has no gate and a search-path notice, not a safe control. The sole raw finding drops the column in Down. |
+| [005_add_conditions_to_tuples](../corpus/files/openfga/005_add_conditions_to_tuples.sql) | 4 / drop @3,3,4,4 / 0 / 1 / 2 | **FP-S.** Up adds four nullable columns across `tuple` and `changelog`; all four raw drop gates are Down only. Up-only produces no risky-pattern gate and still does not establish safety. |
+| [006_add_collate_index](../corpus/files/openfga/006_add_collate_index.sql) | 4 / index @1,4; drop @2,3 / 0 / 1 / 1 | **TP, FP-S, G, ?.** Up concurrent build then concurrent old-index removal, with `NO TRANSACTION` directive. Down adds the extra drop and build gates. Raw report cannot say which direction or read the directive; check dependent plans and retry behavior. |
+
+## pg_partman
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [pg_partman--5.0.0--5.0.1](../corpus/files/pg_partman/pg_partman--5.0.0--5.0.1.sql) | — (parse failure) | **PF, FN, ?.** Raw fails near `@`. Rendered S1 is `AT_AlterConstraint` only: FK becomes deferrable and initially deferred, changing enforcement timing. Earlier upgrade/commit ordering is in comments, not executable S1; prior pending trigger state unknown. |
+| [pg_partman--5.2.2--5.2.3](../corpus/files/pg_partman/pg_partman--5.2.2--5.2.3.sql) | — (parse failure) | **PF, CU, ?.** Raw fails near `@`. Rendered routine is opaque. Replica-identity changes are invocation-time effects of the replacement helper, not automatically performed by the upgrade. |
+| [pg_partman--5.2.3--5.2.4](../corpus/files/pg_partman/pg_partman--5.2.3--5.2.4.sql) | — (parse failure) | **PF, CU, ?.** Raw fails near `@`. Rendered: three opaque routine definitions. Dynamic partition row movement (DELETE/INSERT via CTEs) is relevant when the helper is called, not immediate upgrade-time DML. |
+
+## pgmq
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [pgmq--1.8.0--1.8.1](../corpus/files/pgmq/pgmq--1.8.0--1.8.1.sql) | 1 / none / 1 / 0 / 0 | **CU, ?.** Replaces archive partition conversion helper. Correct opaque marker; distinguish function replacement and deferred invocation-time archive DDL/data work. |
+| [pgmq--1.10.0--1.10.1](../corpus/files/pgmq/pgmq--1.10.0--1.10.1.sql) | 6 / none / 6 / 0 / 0 | **CU, FN, ?.** Drops/recreates three queue creation APIs; drops get an unsupported-object label, definitions are opaque. These are definition/dependency changes, not immediate dynamic queue/table creation; validate existing callers and permissions. |
+
+## river
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [001_create_river_migration.up](../corpus/files/river/001_create_river_migration.up.sql) | 2 / index @2 / 1 / 1 / 1 | **TP, CU, G, ?.** Creates migration table then its unique index. True index operation and appropriate table scope warning; live-table blocked-write framing is low-signal, and raw `public` can differ from runner schema. |
+| [002_initial_schema.up](../corpus/files/river/002_initial_schema.up.sql) | 10 / index @3,4,5,6,7 / 5 / 1 / 2 | **TP, CU, G, ?.** Initial tables, enum, notify routine/trigger, five indexes on newly created `river_job`. Useful inventory; live-table index framing is low-signal. Check trigger behavior and rendered schema separately. |
+| [003_river_job_tags_non_null.up](../corpus/files/river/003_river_job_tags_non_null.up.sql) | 3 / backfill @2; required @3 / 1 / 1 / 1 | **TP, CU, G, ?.** Default → update NULL tags → enforce NOT NULL. Correct backfill/required findings; generic plan misses proof/lock-scan sequencing for existing rows and how to handle reachable writers that explicitly send NULL. |
+| [004_pending_and_more.up](../corpus/files/river/004_pending_and_more.up.sql) | 14 / backfill @2,6; required @3,7; enum @8 / 11 / 1 / 3 | **TP, FN, CU, H, ?.** Finds two backfills, two required changes and enum addition. S9–10 and S14 CHECK replacements lack a specific gate; S10 can reject rows meeting the old CHECK. Also manually review removal of notification objects (S11–12). |
+| [005_migration_unique_client.up](../corpus/files/river/005_migration_unique_client.up.sql) | 5 / index @3 / 3 / 1 / 3 | **TP, CU, H, ?.** S3 ordinary unique index on existing jobs correctly flagged. S1's opaque block rebuilds/copies/drops the tracking table; omitted from target capture. Whether to prebuild an index depends on version and table shape. |
+| [006_bulk_unique.up](../corpus/files/river/006_bulk_unique.up.sql) | 4 / index @3; drop @4 / 1 / 1 / 1 | **TP, CU, G, ?.** Finds conditional new unique index and old-index drop; body deferred to manual. Verify prebuilt index identity/validity and finish old-style unique jobs before retirement; do not assert that the new index will be built or is valid. |
+| [007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up](../corpus/files/river/007_notification_outbox_sqlite_jsonb_and_sql_cleanup.up.sql) | 7 / index @2,3; drop @4,5 / 3 / 1 / 5 | **TP, CU, G, ?.** Two new-table indexes are real but get live-write framing. Two client-table drops correctly flagged; check old-client dependencies and defaults on remaining tables. Prior consumers and schema are unverified. |
+
+## storage
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [0017-drop-owner-foreign-key](../corpus/files/storage/0017-drop-owner-foreign-key.sql) | 1 / none / 1 / 0 / 1 | **FN, ?.** Explicit DROP CONSTRAINT on `storage.objects`. Generic manual marker gives no integrity/rollback or referenced-object guidance; verify the FK exists and its effects. |
+| [0019-alter-default-value-objects-id](../corpus/files/storage/0019-alter-default-value-objects-id.sql) | 1 / none / 1 / 0 / 1 | **CU, ?.** SET DEFAULT changes future inserts, not existing row values. Generic manual classification is conservative; check UUID generator resolution and callers that omit the ID. |
+| [0021-s3-multipart-uploads](../corpus/files/storage/0021-s3-multipart-uploads.sql) | 7 / index @3 / 6 / 0 / 2 | **TP, CU, FN, G, ?.** New tables with FKs, RLS and opaque GRANT/REVOKE/function changes. S3 correctly finds an index; pre-existing writes are conditional on `IF NOT EXISTS`. Referenced `storage.buckets` is missing from capture; review dependency and role/RLS behavior. |
+| [0022-s3-multipart-uploads-big-ints](../corpus/files/storage/0022-s3-multipart-uploads-big-ints.sql) | 2 / type @1,2 / 0 / 0 / 2 | **TP, G, ?.** Both integer→bigint changes correctly flagged. Verify rewrite/lock budget and client serialization; generic type guidance does not identify the table work or know its size. |
+| [0029-create-prefixes](../corpus/files/storage/0029-create-prefixes.sql) | 1 / none / 1 / 0 / 0 | **CU, FP-S.** Raw body includes batched INSERT/data movement and COMMIT; correct opaque handling given raw SQL. Pinned runner ignores this file (exact derived control); raw manual warning is not a forward execution risk. |
+| [0030-update-object-levels](../corpus/files/storage/0030-update-object-levels.sql) | 1 / none / 1 / 0 / 0 | **CU, FP-S.** Raw body includes batched CTE UPDATE and COMMIT; correct opaque handling. Same pinned runner no-op as 0029. |
+| [0031-objects-level-index](../corpus/files/storage/0031-objects-level-index.sql) | 1 / index @1 / 0 / 0 / 1 | **TP, FP-S.** Raw concurrent unique index recognized; pinned runner ignores the file (exact derived control), so the raw finding does not apply to its forward rollout. |
+| [0044-vector-bucket-type](../corpus/files/storage/0044-vector-bucket-type.sql) | 1 / none / 1 / 0 / 0 | **CU, H, ?.** Conditional `ADD VALUE 'VECTOR'` in DO is not analyzed. Opaque is accurate; verify actual type state and old-consumer readiness rather than treating zero gates as coverage. |
+| [0053-drop-index-lower-name](../corpus/files/storage/0053-drop-index-lower-name.sql) | 1 / drop @1 / 0 / 0 / 0 | **TP, G, ?.** Concurrent index drop detected. No notice identifying the transaction restriction or unresolved unqualified index scope; target list empty. Check replacement query plans, not row backup. |
+| [0068-bucket-lifecycle-configuration](../corpus/files/storage/0068-bucket-lifecycle-configuration.sql) | 5 / none / 4 / 0 / 1 | **CU, H, ?.** S1 nullable columns; S2 adds three guarded NOT VALID checks, S3–5 introduce trigger behavior that can reject writes. Opaque is honest but not adequate compatibility guidance; check role/route behavior and distinguish enforcement from later validation. |
+| [0069-validate-bucket-lifecycle-constraints](../corpus/files/storage/0069-validate-bucket-lifecycle-constraints.sql) | 3 / none / 3 / 0 / 1 | **FN, H, ?.** Three explicit validation statements get three `AT_ValidateConstraint` manual markers. Verify already-valid state/history, scan impact and writer behavior after 0068. |
+
+## temporal
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [temporal-v1.5-cluster_membership](../corpus/files/temporal/temporal-v1.5-cluster_membership.sql) | 1 / type @1 / 0 / 1 / 1 | **TP, G, ?.** Type-change gate on `rpc_address` varchar widening. Do not assume data copy or a legacy cap is needed; actual catalog, migration lock wait and mixed-client constraints are unknown. |
+| [temporal-v1.5-event](../corpus/files/temporal/temporal-v1.5-event.sql) | 1 / required @1 / 1 / 1 / 1 | **TP, IU, G, ?.** Adds required `prev_txn_id` with literal zero. Correct PostgreSQL 11+ fast-default note; generic duplicate uncovered blurs it. Check writer semantics rather than assuming an existing-data backfill is required. |
+| [temporal-v1.8-alter_columns](../corpus/files/temporal/temporal-v1.8-alter_columns.sql) | 2 / type @1,2 / 0 / 1 / 2 | **TP, G, ?.** Two varchar broadenings detected; useful catalog/lock checks, but copy/reconciliation defaults overstate likely work. Check actual prior types/indexes rather than claiming unconditional rewrite. |
+| [temporal-v1.8-drop_unused_tasks_table](../corpus/files/temporal/temporal-v1.8-drop_unused_tasks_table.sql) | 1 / drop @1 / 0 / 1 / 1 | **TP, ?.** Direct table drop detection and dependency/recovery checks fit. Upstream filename says unused; actual readers and contents remain unknown. |
+| [temporal-v1.16-fix_data_encoding_column](../corpus/files/temporal/temporal-v1.16-fix_data_encoding_column.sql) | 2 / drop @1; required @2 / 1 / 1 / 1 | **TP, IU, G, H, ?.** Drop then re-add same name with literal empty default. Finds both but not that old values are not preserved. Generic uncovered duplicates the default note; impact depends on historical values and consumers. |
+| [visibility-v1.6-fix_root_workflow_info](../corpus/files/temporal/visibility-v1.6-fix_root_workflow_info.sql) | 8 / drop @1,2,3,4; required @5,6; index @7,8 / 2 / 1 / 1 | **TP, IU, G, H, ?.** Finds index drops/builds and required column drops/re-adds. Does not connect same-name resets to lost prior values; generic duplicate default warnings are noise. Check rebuild locks, historical values and old clients. |
+| [visibility-v1.14-add_external_payload_size_and_count_search_attributes](../corpus/files/temporal/visibility-v1.14-add_external_payload_size_and_count_search_attributes.sql) | 4 / index @3,4 / 3 / 1 / 1 | **TP, FN, CU, G, H, ?.** S1's two stored generated columns are only generic ADD COLUMN messages, although adding them rewrites the existing table. S2 cleanup is opaque; concurrent builds S3–4 correctly warn about runner wrapping. No actual table size/index validity inferred. |
+
+## trigger.dev
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [20230213154802_simplify_org_template_status](../corpus/files/trigger.dev/20230213154802_simplify_org_template_status.sql) | 9 / type @4; drop @7 / 5 / 1 / 1 | **TP, FN, G, H, ?.** Detects type cast and drop but not enum recreation; persisted `READY_TO_TEST`/`READY_TO_RUN`, if present, fail the cast. Reconcile data and old emission before conversion; default/type rename manual entries do not explain this. |
+| [20240319120645_convert_start_time_to_nanoseconds_since_epoch](../corpus/files/trigger.dev/20240319120645_convert_start_time_to_nanoseconds_since_epoch.sql) | 6 / backfill @3; drop @4; rename @5 / 0 / 1 / 1 | **TP, G, H, ?.** Backfill, drop and rename found. Does not connect same-name timestamp→bigint replacement, lost required constraint and DDL lock held across the unbounded update in explicit BEGIN/COMMIT. |
+| [20240517105224_remove_test_alert_type](../corpus/files/trigger.dev/20240517105224_remove_test_alert_type.sql) | 9 / type @3,4,5; drop @8 / 3 / 1 / 3 | **TP, FN, G, H, ?.** Scalar and array type casts and old-type drop found; enum removal by recreation not classified. Check stored `TEST` in both shapes, legacy writers and restore plan before the cast. |
+| [20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts](../corpus/files/trigger.dev/20240815123344_add_project_alert_type_task_run_and_migrate_existing_alerts.sql) | 3 / enum @1; fk @3 / 0 / 1 / 2 | **TP, G, ?.** Enum add and validated cascading FK found; nullable ADD COLUMN correctly gets no gate. Check FK validation/locks on both relations and delete behavior, not just generic writer readiness. No literal new enum use in this file. |
+| [20250212053026_create_task_event_partitioned_table](../corpus/files/trigger.dev/20250212053026_create_task_event_partitioned_table.sql) | 4 / index @2,3,4 / 1 / 1 / 1 | **TP, CU, G.** New range-partitioned parent plus three plain indexes. Index detection is true, but live-table pressure is misleading and concurrently building on the parent is not an alternative. |
+| [20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot](../corpus/files/trigger.dev/20250919123905_remove_unnecessary_foreign_key_constraints_task_run_execution_snapshot.sql) | 5 / none / 5 / 0 / 1 | **FN, H, ?.** Five explicit FK removals receive five generic markers, no rollout gate. Check constraint existence, lost enforcement/cascade and old/recovery writers; actual risk depends on dependencies. |
+| [20260622120731_add_webhook_endpoint_and_delivery](../corpus/files/trigger.dev/20260622120731_add_webhook_endpoint_and_delivery.sql) | 10 / index @5,6,7,8,9,10 / 4 / 0 / 2 | **TP, CU, G, ?.** Adds two enums, two new tables including a partitioned parent, and six indexes. Gate says plain indexes block writes without distinguishing bootstrap or parent constraints. Prior enum dependency is not established by parsing. |
+
+## umami
+
+| Corpus input | Raw S / F / U / N / T | Verdict and evidence |
+|---|---|---|
+| [02_report_schema_session_data](../corpus/files/umami/02_report_schema_session_data.sql) | 17 / rename @1,2,3,4,5; index @8,9,10,11,12,13,14,15; backfill @16,17 / 2 / 1 / 3 | **TP, CU, G, ?.** Five mixed-version column renames and two updates found. Eight new-table indexes correctly identified but receive existing-writer framing. Verify narrowed predicates, compatibility and data parity. |
+| [03_metric_performance_index](../corpus/files/umami/03_metric_performance_index.sql) | 17 / index @1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 / 0 / 1 / 3 | **TP, ?.** Seventeen ordinary builds on three existing tables: useful target and blocked-write checks. Actual runtime and aggregation into a lock budget depend on data and runner. |
+| [04_team_redesign](../corpus/files/umami/04_team_redesign.sql) | 7 / backfill @4; drop @5; index @6,7 / 0 / 1 / 4 | **TP, G, H, ?.** S3 adds nullable `team_id`; S4 filters on that new NULL column, so existing rows normally all qualify. Engine detects update and association-table drop, but does not link missing mapping copy and cutover/recovery. Actual mappings/consumers unknown. |
+| [14_add_link_and_pixel](../corpus/files/umami/14_add_link_and_pixel.sql) | 23 / type @1,2,3; index @6,7,8,9,10,11,12,13,14,15,16,17; drop @18,23; backfill @19,20,21,22 / 2 / 1 / 5 | **TP, CU, G, ?.** Type operations, JSON data edits, self-copy and deletes detected, but conversion/retry/uniqueness require tied checks. Twelve indexes on the new link/pixel tables get ordinary write-blocking framing. |
+| [17_remove_duplicate_key](../corpus/files/umami/17_remove_duplicate_key.sql) | 10 / drop @1,2,3,4,5,6,7,8,9,10 / 0 / 0 / 0 | **TP, G, ?.** Ten index drops detected; no relation targets or unqualified-index scope notice. Check ordinary drop locks, index dependencies and equivalence, not row-data backups. Whether all indexes are duplicate in the target is unverified. |
+| [23_update_session_data](../corpus/files/umami/23_update_session_data.sql) | 2 / drop @1; index @2 / 0 / 1 / 1 | **TP, G, ?.** Correctly flags DELETE using a read CTE and unique index build. Verify retained row ordering and duplicate races if steps are separately committed; do not assume runner wrapping or current duplicates. |
